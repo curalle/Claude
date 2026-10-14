@@ -1,0 +1,8 @@
+# Source footage is too large for GitHub (>100 MB); keep it local / on Drive
+video-edit/*.mp4
+video-edit/*.mov
+video-edit/renders/
+video-edit/snapshots/
+video-edit/.hyperframes/
+video-edit/.media/
+node_modules/
