@@ -91,6 +91,9 @@ def main():
     html = (ROOT / "build" / "template.html").read_text()
     for k, v in {
         "__VIDEO__": video,
+        "__SCENES_CSS__": (ROOT / "build" / "scenes.css").read_text().rstrip(),
+        "__SCENES_HTML__": (ROOT / "build" / "scenes.html").read_text().rstrip(),
+        "__SCENES_JS__": (ROOT / "build" / "scenes.js").read_text().rstrip(),
         "__HOOK_END__": str(hook_end),
         "__HOOK_TAG__": edit["hook_tag"],
         "__HOOK_TITLE__": edit["hook_title"],

@@ -1,0 +1,217 @@
+      /* ---------- Vox-style explainer cut-ins ---------- */
+      .scene {
+        position: absolute;
+        inset: 0;
+      }
+      .scene .wipe {
+        position: absolute;
+        inset: 0;
+        background: var(--hi);
+      }
+      .scene .panel {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        background-color: var(--sheet);
+        background-image:
+          radial-gradient(ellipse at 50% 40%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 60%),
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='360'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.32 0 0 0 0 0.27 0 0 0 0 0.2 0 0 0 0.11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      .scene svg.art {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: visible;
+      }
+      .kick {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 130px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-weight: 800;
+        font-size: 28px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--red);
+      }
+      .kick .rule {
+        display: block;
+        flex: 1;
+        height: 3px;
+        background: var(--ink);
+        transform-origin: 0% 50%;
+      }
+      .hd {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 190px;
+        font-family: "League Gothic", sans-serif;
+        font-size: 128px;
+        line-height: 0.95;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .mark {
+        display: inline-block;
+        position: relative;
+        padding: 0 10px;
+      }
+      .mark .bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 18%;
+        bottom: 6%;
+        display: block;
+        background: var(--hi);
+        transform-origin: 0% 50%;
+      }
+      .mark .t {
+        position: relative;
+      }
+      .lbl {
+        position: absolute;
+        font-weight: 800;
+        font-size: 34px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .note {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        text-align: center;
+        font-weight: 800;
+        font-size: 46px;
+        line-height: 1.15;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .stamp {
+        display: inline-block;
+        font-family: "League Gothic", sans-serif;
+        text-transform: uppercase;
+        color: var(--red);
+        border: 8px solid var(--red);
+        border-radius: 14px;
+        padding: 6px 30px 2px;
+        background: rgba(255, 255, 255, 0.55);
+      }
+
+      /* Scene 1: cycle ring */
+      #s1 .num {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 650px;
+        display: flex;
+        justify-content: center;
+        font-family: "League Gothic", sans-serif;
+        font-size: 230px;
+        line-height: 1;
+        color: var(--ink);
+      }
+      #s1 .num span {
+        display: inline-block;
+      }
+      #s1 .unit {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 890px;
+        text-align: center;
+        font-weight: 900;
+        font-size: 44px;
+        letter-spacing: 0.3em;
+        color: var(--red);
+      }
+
+      /* Scene 2: skin layers */
+      #s2 .step {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 190px;
+        display: flex;
+        align-items: center;
+        gap: 26px;
+        font-family: "League Gothic", sans-serif;
+        font-size: 104px;
+        line-height: 0.95;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      #s2 .step .no {
+        display: flex;
+        flex: 0 0 104px;
+        width: 104px;
+        height: 104px;
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        background: var(--red);
+        color: var(--sheet);
+        font-size: 78px;
+      }
+      #s2 .step .tx {
+        display: block;
+      }
+
+      /* Scene 3: timeline */
+      #s3 .tick {
+        position: absolute;
+        top: 790px;
+        width: 200px;
+        margin-left: -100px;
+        text-align: center;
+        font-weight: 800;
+        font-size: 38px;
+        letter-spacing: 0.06em;
+        color: var(--ink);
+      }
+      #s3 .min {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 520px;
+        text-align: center;
+        font-family: "League Gothic", sans-serif;
+        font-size: 92px;
+        line-height: 1;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      #s3 .stampwrap {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 890px;
+        display: flex;
+        justify-content: center;
+      }
+      #s3 .stamp {
+        font-size: 104px;
+      }
+
+      /* Sabar stamp over the footage */
+      #sabar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 300px;
+        display: flex;
+        justify-content: center;
+      }
+      #sabar .stamp {
+        font-size: 190px;
+        padding: 10px 50px 4px;
+        border-width: 12px;
+        box-shadow: 0 16px 40px rgba(19, 28, 63, 0.25);
+      }
