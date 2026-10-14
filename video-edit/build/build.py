@@ -16,22 +16,21 @@ MAX_WORDS = 4
 PAUSE_BREAK = 0.35
 
 
-def load_words():
+def load_words(fixes):
+    """Clean words; `fixes` maps word id -> replacement text ("" drops the word)."""
     raw = json.loads((ROOT / "transcript.json").read_text())
     words = []
     for w in raw:
         t = (w.get("text") or "").strip()
         if not t or re.fullmatch(r"[♪�\W_]+", t):
             continue
-        words.append({"t": t, "s": float(w["start"]), "e": float(w["end"])})
-    return words
-
-
-def apply_fixes(words, fixes):
-    for w in words:
-        key = w["t"].lower().strip(".,!?")
-        if key in fixes:
-            w["t"] = fixes[key] + w["t"][len(w["t"].rstrip(".,!?")):]
+        # Whisper gives no punctuation here; a capitalised ordinary word starts a sentence.
+        sb = t[0].isupper() and not t.isupper() and "." not in t
+        if w.get("id") in fixes:
+            t = fixes[w["id"]]
+            if not t:
+                continue
+        words.append({"t": t, "s": float(w["start"]), "e": float(w["end"]), "sb": sb})
     return words
 
 
@@ -40,7 +39,7 @@ def group(words, emphasis):
     for i, w in enumerate(words):
         cur.append(w)
         nxt = words[i + 1] if i + 1 < len(words) else None
-        sentence_end = w["t"][-1] in ".?!"
+        sentence_end = w["t"][-1] in ".?!" or (nxt is not None and nxt["sb"])
         gap = (nxt["s"] - w["e"]) if nxt else 99
         if len(cur) >= MAX_WORDS or sentence_end or gap > PAUSE_BREAK or nxt is None:
             groups.append(cur)
@@ -54,6 +53,7 @@ def group(words, emphasis):
         out.append({
             "start": round(start, 3),
             "end": round(end, 3),
+            "sb": g[0]["sb"],
             "words": [{
                 "t": w["t"].rstrip(","),
                 "s": round(w["s"], 3),
@@ -69,7 +69,7 @@ def punches(groups, hook_end, outro_start):
     beats, last, state = [], hook_end - 0.5, False
     for i, g in enumerate(groups):
         prev = groups[i - 1] if i else None
-        starts_sentence = prev is None or prev["words"][-1]["t"][-1:] in ".?!" or g["start"] - prev["end"] > 0.6
+        starts_sentence = prev is None or g["sb"] or g["start"] - prev["end"] > 0.6
         if starts_sentence and g["start"] - last >= 5.0 and g["start"] < outro_start - 1:
             state = not state
             beats.append([round(g["start"], 3), PUNCH if state else BASE])
@@ -81,7 +81,7 @@ def punches(groups, hook_end, outro_start):
 
 def main():
     edit = json.loads((ROOT / "build" / "edit.json").read_text())
-    words = apply_fixes(load_words(), {k.lower(): v for k, v in edit.get("fixes", {}).items()})
+    words = load_words(edit.get("fixes", {}))
     emphasis = {e.lower() for e in edit.get("emphasis", [])}
     groups = group(words, emphasis)
     hook_end, outro_start = edit["hook_end"], edit["outro_start"]

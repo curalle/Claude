@@ -1,0 +1,9 @@
+{
+  "hook_tag": "Fakta Kulit",
+  "hook_title": "Kulit bulan lepas dah tak ada?",
+  "hook_end": 6.5,
+  "outro_start": 86.4,
+  "outro_text": "Follow Dr Fareez untuk lebih fakta kulit",
+  "fixes": { "w14": "Dr Fareez", "w105": "", "w174": "", "w175": "Dr Fareez" },
+  "emphasis": ["super", "power", "28", "30", "sabar", "sebulan", "exfoliate", "lembut", "glowing", "follow", "like", "share", "dr fareez"]
+}

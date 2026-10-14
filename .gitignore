@@ -6,3 +6,4 @@ video-edit/snapshots/
 video-edit/.hyperframes/
 video-edit/.media/
 node_modules/
+video-edit/.transcode-cache/
