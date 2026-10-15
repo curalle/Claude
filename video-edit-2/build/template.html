@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="ms" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      :root {
+        --navy: #131c3f;
+        --accent: #b8206f;
+        --paper: #fff8f2;
+        /* explainer cut-ins */
+        --sheet: #f1ebdf;
+        --ink: #1d1b18;
+        --hi: #ffd23f;
+        --red: #e0452b;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--navy);
+      }
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
+
+      /* Camera wrapper: anchored at the top so the base reframe pushes the
+         phone's burned-in watermark (bottom-left) out of frame. */
+      #cam {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+      #cam-inner {
+        position: absolute;
+        inset: 0;
+        transform-origin: 50% 0%;
+      }
+
+      /* Soft top shade so the hook card reads over the bright wall */
+      #shade {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 640px;
+        background: linear-gradient(180deg, rgba(19, 28, 63, 0.55) 0%, rgba(19, 28, 63, 0) 100%);
+      }
+
+      /* Hook card */
+      #hook {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 170px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 22px;
+        padding: 0 70px;
+      }
+      #hook .tag {
+        display: block;
+        background: var(--accent);
+        color: var(--paper);
+        font-weight: 900;
+        font-size: 34px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        padding: 12px 26px;
+        border-radius: 8px;
+      }
+      #hook .title {
+        display: block;
+        max-width: 940px;
+        background: var(--paper);
+        color: var(--navy);
+        font-weight: 900;
+        font-size: 74px;
+        line-height: 1.08;
+        text-align: center;
+        text-transform: uppercase;
+        padding: 26px 40px 30px;
+        border-radius: 18px;
+        box-shadow: 0 18px 50px rgba(19, 28, 63, 0.35);
+      }
+
+      /* Captions */
+      #captions {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 1250px;
+        height: 330px;
+      }
+      .cg {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-content: flex-start;
+        gap: 6px 14px;
+        padding: 0 80px;
+        opacity: 0;
+        overflow: visible;
+      }
+      .w {
+        display: inline-block;
+        position: relative;
+        color: var(--paper);
+        font-weight: 900;
+        font-size: 64px;
+        line-height: 1.12;
+        white-space: nowrap;
+        text-transform: uppercase;
+        padding: 2px 14px 6px;
+        border-radius: 12px;
+        -webkit-text-stroke: 12px var(--navy);
+        paint-order: stroke fill;
+        text-shadow: 0 6px 18px rgba(19, 28, 63, 0.55);
+      }
+      .w .hl {
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        background: var(--accent);
+        opacity: 0;
+        display: block;
+      }
+      .w .tx {
+        position: relative;
+      }
+
+      /* Progress bar */
+      #progress {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 10px;
+        background: rgba(19, 28, 63, 0.45);
+      }
+      #progress .bar {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: var(--accent);
+        transform-origin: 0% 50%;
+      }
+
+      /* Outro */
+      #outro {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 250px;
+        display: flex;
+        justify-content: center;
+        padding: 0 80px;
+      }
+      #outro .card {
+        display: block;
+        background: var(--accent);
+        color: var(--paper);
+        font-weight: 900;
+        font-size: 58px;
+        line-height: 1.1;
+        text-align: center;
+        text-transform: uppercase;
+        padding: 24px 40px 28px;
+        border-radius: 18px;
+        box-shadow: 0 18px 50px rgba(19, 28, 63, 0.35);
+        max-width: 900px;
+      }
+      #outro .card .sub {
+        display: block;
+        margin-top: 12px;
+        font-size: 36px;
+        font-weight: 800;
+      }
+      #outro .card .sub.hl {
+        display: inline-block;
+        margin-top: 16px;
+        padding: 6px 18px;
+        border-radius: 10px;
+        background: var(--hi);
+        color: var(--ink);
+      }
+__SCENES_CSS__
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="__DURATION__"
+      data-width="1080"
+      data-height="1920"
+    >
+      <div id="cam">
+        <div id="cam-inner" data-layout-allow-overflow>
+          __VIDEO__
+        </div>
+      </div>
+
+      <div id="shade" class="clip" data-start="0" data-duration="__HOOK_END__" data-track-index="1"></div>
+
+      <div id="hook" class="clip" data-start="0" data-duration="__HOOK_END__" data-track-index="2">
+        <span class="tag">__HOOK_TAG__</span>
+        <span class="title">__HOOK_TITLE__</span>
+      </div>
+
+__SCENES_HTML__
+      <div id="captions" class="clip" data-start="0" data-duration="__DURATION__" data-track-index="3"></div>
+
+      <div id="outro" class="clip" data-start="__OUTRO_START__" data-duration="__OUTRO_DUR__" data-track-index="4">
+        <span class="card">__OUTRO_TEXT__</span>
+      </div>
+
+      <div id="progress" class="clip" data-start="0" data-duration="__DURATION__" data-track-index="5">
+        <span class="bar"></span>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+      var DURATION = __DURATION__;
+      var HOOK_END = __HOOK_END__;
+      var OUTRO_START = __OUTRO_START__;
+      // Caption groups: [{ start, end, words: [{ t, s, e, em }] }]
+      var GROUPS = __GROUPS__;
+      // Camera beats: [time, scale] — hard punch-ins on sentence starts
+      var PUNCHES = __PUNCHES__;
+      var BASE = 1.085;
+
+      var tl = gsap.timeline({ paused: true });
+
+      // --- Camera: opening settle, then punch-ins ---
+      tl.fromTo("#cam-inner", { scale: 1.22 }, { scale: BASE, duration: 1.1, ease: "power3.out" }, 0);
+      PUNCHES.forEach(function (p) {
+        tl.to("#cam-inner", { scale: p[1], duration: 0.16, ease: "power3.out" }, p[0]);
+      });
+
+      // --- Hook card ---
+      tl.fromTo("#hook .tag", { y: -30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "back.out(1.8)" }, 0.15);
+      tl.fromTo(
+        "#hook .title",
+        { y: 40, scale: 0.92, opacity: 0 },
+        { y: 0, scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.6)" },
+        0.3,
+      );
+      tl.to("#hook .tag", { y: -20, opacity: 0, duration: 0.25, ease: "power2.in" }, HOOK_END - 0.35);
+      tl.to("#hook .title", { y: -30, opacity: 0, duration: 0.3, ease: "power2.in" }, HOOK_END - 0.3);
+      tl.to("#shade", { opacity: 0, duration: 0.4, ease: "none" }, HOOK_END - 0.4);
+
+      // --- Captions: one group at a time, karaoke highlight on the spoken word ---
+      var cap = document.getElementById("captions");
+      GROUPS.forEach(function (g, gi) {
+        var el = document.createElement("div");
+        el.className = "cg";
+        el.id = "cg-" + gi;
+        g.words.forEach(function (w, wi) {
+          var span = document.createElement("span");
+          span.className = "w";
+          span.id = "cg-" + gi + "-w" + wi;
+          var hl = document.createElement("span");
+          hl.className = "hl";
+          span.appendChild(hl);
+          var tx = document.createElement("span");
+          tx.className = "tx";
+          tx.textContent = w.t;
+          span.appendChild(tx);
+          el.appendChild(span);
+        });
+        cap.appendChild(el);
+      });
+
+      GROUPS.forEach(function (g, gi) {
+        var el = document.getElementById("cg-" + gi);
+        tl.fromTo(el, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.14, ease: "power2.out" }, g.start);
+        g.words.forEach(function (w, wi) {
+          var span = document.getElementById("cg-" + gi + "-w" + wi);
+          var hl = span.querySelector(".hl");
+          var popScale = w.em ? 1.14 : 1.06;
+          tl.set(hl, { opacity: 1 }, w.s);
+          tl.fromTo(span, { scale: 1 }, { scale: popScale, duration: 0.12, ease: "back.out(2.5)" }, w.s);
+          // Hand the highlight to the next word the instant it starts: one lit word at a time.
+          if (wi < g.words.length - 1) {
+            var off = g.words[wi + 1].s;
+            tl.set(hl, { opacity: 0 }, off);
+            tl.to(span, { scale: 1, duration: 0.1, ease: "power2.out" }, off);
+          }
+        });
+        tl.to(el, { opacity: 0, duration: 0.1, ease: "power2.in" }, g.end - 0.1);
+        tl.set(el, { opacity: 0, visibility: "hidden" }, g.end);
+      });
+
+      // --- Outro card ---
+      tl.fromTo(
+        "#outro .card",
+        { y: -40, scale: 0.9, opacity: 0 },
+        { y: 0, scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.6)" },
+        OUTRO_START + 0.05,
+      );
+
+__SCENES_JS__
+
+      // --- Progress bar ---
+      tl.fromTo("#progress .bar", { scaleX: 0 }, { scaleX: 1, duration: DURATION, ease: "none" }, 0);
+
+      window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>

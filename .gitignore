@@ -7,3 +7,11 @@ video-edit/.hyperframes/
 video-edit/.media/
 node_modules/
 video-edit/.transcode-cache/
+# Any edit project folder
+video-edit*/*.mp4
+video-edit*/*.mov
+video-edit*/renders/
+video-edit*/snapshots/
+video-edit*/.hyperframes/
+video-edit*/.media/
+video-edit*/.transcode-cache/

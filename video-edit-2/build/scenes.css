@@ -1,0 +1,332 @@
+      /* ---------- Vox-style explainer cut-ins ---------- */
+      .scene {
+        position: absolute;
+        inset: 0;
+      }
+      .scene .wipe {
+        position: absolute;
+        inset: 0;
+        background: var(--hi);
+      }
+      .scene .panel {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        background-color: var(--sheet);
+        background-image:
+          radial-gradient(ellipse at 50% 40%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 60%),
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='360'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.32 0 0 0 0 0.27 0 0 0 0 0.2 0 0 0 0.11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      .scene svg.art {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: visible;
+      }
+      .kick {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 130px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-weight: 800;
+        font-size: 28px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--red);
+      }
+      .kick .rule {
+        display: block;
+        flex: 1;
+        height: 3px;
+        background: var(--ink);
+        transform-origin: 0% 50%;
+      }
+      .hd {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 190px;
+        font-family: "League Gothic", sans-serif;
+        font-size: 128px;
+        line-height: 0.95;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .mark {
+        display: inline-block;
+        position: relative;
+        padding: 0 10px;
+      }
+      .mark .bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 18%;
+        bottom: 6%;
+        display: block;
+        background: var(--hi);
+        transform-origin: 0% 50%;
+      }
+      .mark .t {
+        position: relative;
+      }
+      .lbl {
+        position: absolute;
+        font-weight: 800;
+        font-size: 34px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .note {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        text-align: center;
+        font-weight: 800;
+        font-size: 46px;
+        line-height: 1.15;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .stamp {
+        display: inline-block;
+        font-family: "League Gothic", sans-serif;
+        text-transform: uppercase;
+        color: var(--red);
+        border: 8px solid var(--red);
+        border-radius: 14px;
+        padding: 6px 30px 2px;
+        background: rgba(255, 255, 255, 0.55);
+      }
+
+      /* ---------- Video 2: eczema vs kurap ---------- */
+      .chips {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 470px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .chip {
+        display: inline-block;
+        padding: 8px 20px;
+        border: 5px solid var(--ink);
+        border-radius: 999px;
+        background: #fffaf0;
+        font-weight: 900;
+        font-size: 34px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .chip.y {
+        background: var(--hi);
+      }
+      .chip.r {
+        background: var(--red);
+        color: #fffaf0;
+      }
+      .figlbl {
+        position: absolute;
+        font-weight: 900;
+        font-size: 31px;
+        text-transform: uppercase;
+        color: var(--ink);
+        background: #fffaf0;
+        border: 4px solid var(--ink);
+        border-radius: 10px;
+        padding: 4px 14px;
+        white-space: nowrap;
+      }
+      .stampwrap {
+        position: absolute;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+      }
+      .stampwrap .stamp {
+        font-size: 112px;
+      }
+
+      /* VS title */
+      #v .big {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        font-family: "League Gothic", sans-serif;
+        font-size: 260px;
+        line-height: 0.9;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      #v .vs {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 640px;
+        display: flex;
+        justify-content: center;
+      }
+      #v .vs span {
+        display: flex;
+        width: 190px;
+        height: 190px;
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        background: var(--red);
+        color: #fffaf0;
+        font-family: "League Gothic", sans-serif;
+        font-size: 120px;
+        border: 6px solid var(--ink);
+      }
+
+      /* Kurap ring */
+      #k1 .ctr {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 770px;
+        text-align: center;
+        font-weight: 900;
+        font-size: 40px;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+
+      /* Salah krim rows */
+      .rowc {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        padding: 0 32px;
+        border: 5px solid var(--ink);
+        border-radius: 22px;
+        background: #fffaf0;
+      }
+      .rowc .from,
+      .rowc .to {
+        display: block;
+        font-family: "League Gothic", sans-serif;
+        font-size: 74px;
+        line-height: 0.95;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .rowc .from {
+        width: 300px;
+      }
+      .rowc .arrow {
+        display: block;
+        flex: 0 0 90px;
+      }
+      .rowc .res {
+        position: absolute;
+        right: 26px;
+        bottom: -30px;
+        display: block;
+        padding: 6px 20px;
+        border-radius: 10px;
+        background: var(--red);
+        color: #fffaf0;
+        font-weight: 900;
+        font-size: 36px;
+        text-transform: uppercase;
+        border: 4px solid var(--ink);
+      }
+      .rowc .res2 {
+        background: var(--ink);
+      }
+
+      /* Basic care columns */
+      .cols {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 480px;
+        display: flex;
+        gap: 30px;
+      }
+      .col {
+        display: block;
+        flex: 1;
+      }
+      .col .ch {
+        display: block;
+        font-family: "League Gothic", sans-serif;
+        font-size: 96px;
+        line-height: 1;
+        text-transform: uppercase;
+        color: var(--ink);
+        border-bottom: 8px solid var(--ink);
+        padding-bottom: 8px;
+        margin-bottom: 28px;
+      }
+      .item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 30px;
+        font-weight: 900;
+        font-size: 40px;
+        line-height: 1.1;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .item .ic {
+        display: flex;
+        flex: 0 0 64px;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        border: 4px solid var(--ink);
+        background: var(--hi);
+      }
+      .item .ic.no {
+        background: var(--red);
+      }
+
+      /* Over-footage stamp + sticker */
+      #teka {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 280px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 26px;
+      }
+      #teka .stamp {
+        font-size: 170px;
+        padding: 10px 46px 4px;
+        border-width: 12px;
+        box-shadow: 0 16px 40px rgba(19, 28, 63, 0.25);
+      }
+      #teka .stick {
+        display: block;
+        background: #fffaf0;
+        color: var(--ink);
+        border: 5px solid var(--ink);
+        border-radius: 14px;
+        padding: 12px 26px;
+        font-weight: 900;
+        font-size: 44px;
+        text-transform: uppercase;
+        box-shadow: 0 12px 30px rgba(19, 28, 63, 0.25);
+      }
