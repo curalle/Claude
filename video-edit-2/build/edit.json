@@ -1,10 +1,39 @@
 {
-  "duration": 142.8,
+  "duration": 137.18,
   "hook_tag": "Fakta Kulit",
   "hook_title": "Eczema atau kurap?",
   "hook_end": 7.0,
-  "outro_start": 123.4,
+  "outro_start": 117.78,
   "outro_text": "Curalle by Dr Fareez<span class=\"sub\">Jualan sempena Convocation UiTM ke-105</span><span class=\"sub hl\">Mula 17 Oktober</span>",
-  "fixes": { "w80": "kurap", "w222": "Curalle", "w224": "Dr Fareez", "w229": "sempena", "w231": "UiTM", "w242": "UiTM", "w252": "Dr Fareez,", "w254": "", "w255": "", "w256": "" },
-  "emphasis": ["eczema", "kurap", "berjangkit", "steroid", "kulat", "gatal", "teruk", "berbahaya", "moisturizer", "gentle", "doktor", "dermatologis", "follow", "share", "17", "oktober", "curalle"]
+  "fixes": {
+    "w80": "kurap",
+    "w222": "Curalle",
+    "w224": "Dr Fareez",
+    "w229": "sempena",
+    "w231": "UiTM",
+    "w242": "UiTM",
+    "w252": "Dr Fareez,",
+    "w254": "",
+    "w255": "",
+    "w256": ""
+  },
+  "emphasis": [
+    "eczema",
+    "kurap",
+    "berjangkit",
+    "steroid",
+    "kulat",
+    "gatal",
+    "teruk",
+    "berbahaya",
+    "moisturizer",
+    "gentle",
+    "doktor",
+    "dermatologis",
+    "follow",
+    "share",
+    "17",
+    "oktober",
+    "curalle"
+  ]
 }
