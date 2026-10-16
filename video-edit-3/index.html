@@ -1,0 +1,900 @@
+<!doctype html>
+<html lang="ms" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      :root {
+        --navy: #131c3f;
+        --accent: #b8206f;
+        --paper: #fff8f2;
+        /* explainer cut-ins */
+        --sheet: #f1ebdf;
+        --ink: #1d1b18;
+        --hi: #ffd23f;
+        --red: #e0452b;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--navy);
+      }
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
+
+      /* Camera wrapper: anchored at the top so the base reframe pushes the
+         phone's burned-in watermark (bottom-left) out of frame. */
+      #cam {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+      #cam-inner {
+        position: absolute;
+        inset: 0;
+        transform-origin: 50% 0%;
+      }
+
+      /* Soft top shade so the hook card reads over the bright wall */
+      #shade {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 640px;
+        background: linear-gradient(180deg, rgba(19, 28, 63, 0.55) 0%, rgba(19, 28, 63, 0) 100%);
+      }
+
+      /* Hook card */
+      #hook {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 170px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 22px;
+        padding: 0 70px;
+      }
+      #hook .tag {
+        display: block;
+        background: var(--accent);
+        color: var(--paper);
+        font-weight: 900;
+        font-size: 34px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        padding: 12px 26px;
+        border-radius: 8px;
+      }
+      #hook .title {
+        display: block;
+        max-width: 940px;
+        background: var(--paper);
+        color: var(--navy);
+        font-weight: 900;
+        font-size: 74px;
+        line-height: 1.08;
+        text-align: center;
+        text-transform: uppercase;
+        padding: 26px 40px 30px;
+        border-radius: 18px;
+        box-shadow: 0 18px 50px rgba(19, 28, 63, 0.35);
+      }
+
+      /* Captions */
+      #captions {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 1250px;
+        height: 330px;
+      }
+      .cg {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-content: flex-start;
+        gap: 6px 14px;
+        padding: 0 80px;
+        opacity: 0;
+        overflow: visible;
+      }
+      .w {
+        display: inline-block;
+        position: relative;
+        color: var(--paper);
+        font-weight: 900;
+        font-size: 64px;
+        line-height: 1.12;
+        white-space: nowrap;
+        text-transform: uppercase;
+        padding: 2px 14px 6px;
+        border-radius: 12px;
+        -webkit-text-stroke: 12px var(--navy);
+        paint-order: stroke fill;
+        text-shadow: 0 6px 18px rgba(19, 28, 63, 0.55);
+      }
+      .w .hl {
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        background: var(--accent);
+        opacity: 0;
+        display: block;
+      }
+      .w .tx {
+        position: relative;
+      }
+
+      /* Progress bar */
+      #progress {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 10px;
+        background: rgba(19, 28, 63, 0.45);
+      }
+      #progress .bar {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: var(--accent);
+        transform-origin: 0% 50%;
+      }
+
+      /* Outro */
+      #outro {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 250px;
+        display: flex;
+        justify-content: center;
+        padding: 0 80px;
+      }
+      #outro .card {
+        display: block;
+        background: var(--accent);
+        color: var(--paper);
+        font-weight: 900;
+        font-size: 58px;
+        line-height: 1.1;
+        text-align: center;
+        text-transform: uppercase;
+        padding: 24px 40px 28px;
+        border-radius: 18px;
+        box-shadow: 0 18px 50px rgba(19, 28, 63, 0.35);
+        max-width: 900px;
+      }
+      #outro .card .sub {
+        display: block;
+        margin-top: 12px;
+        font-size: 36px;
+        font-weight: 800;
+      }
+      #outro .card .sub.hl {
+        display: inline-block;
+        margin-top: 16px;
+        padding: 6px 18px;
+        border-radius: 10px;
+        background: var(--hi);
+        color: var(--ink);
+      }
+      /* ---------- Vox-style explainer cut-ins ---------- */
+      .scene {
+        position: absolute;
+        inset: 0;
+      }
+      .scene .wipe {
+        position: absolute;
+        inset: 0;
+        background: var(--hi);
+      }
+      .scene .panel {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        background-color: var(--sheet);
+        background-image:
+          radial-gradient(ellipse at 50% 40%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 60%),
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='360'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.32 0 0 0 0 0.27 0 0 0 0 0.2 0 0 0 0.11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      .scene svg.art {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: visible;
+      }
+      .kick {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 130px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-weight: 800;
+        font-size: 28px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--red);
+      }
+      .kick .rule {
+        display: block;
+        flex: 1;
+        height: 3px;
+        background: var(--ink);
+        transform-origin: 0% 50%;
+      }
+      .hd {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 190px;
+        font-family: "League Gothic", sans-serif;
+        font-size: 128px;
+        line-height: 0.95;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .mark {
+        display: inline-block;
+        position: relative;
+        padding: 0 10px;
+      }
+      .mark .bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 18%;
+        bottom: 6%;
+        display: block;
+        background: var(--hi);
+        transform-origin: 0% 50%;
+      }
+      .mark .t {
+        position: relative;
+      }
+      .lbl {
+        position: absolute;
+        font-weight: 800;
+        font-size: 34px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .note {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        text-align: center;
+        font-weight: 800;
+        font-size: 46px;
+        line-height: 1.15;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .stamp {
+        display: inline-block;
+        font-family: "League Gothic", sans-serif;
+        text-transform: uppercase;
+        color: var(--red);
+        border: 8px solid var(--red);
+        border-radius: 14px;
+        padding: 6px 30px 2px;
+        background: rgba(255, 255, 255, 0.55);
+      }
+
+      /* ---------- Video 2: eczema vs kurap ---------- */
+      .chips {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 470px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .chip {
+        display: inline-block;
+        padding: 8px 20px;
+        border: 5px solid var(--ink);
+        border-radius: 999px;
+        background: #fffaf0;
+        font-weight: 900;
+        font-size: 34px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .chip.y {
+        background: var(--hi);
+      }
+      .chip.r {
+        background: var(--red);
+        color: #fffaf0;
+      }
+      .figlbl {
+        position: absolute;
+        font-weight: 900;
+        font-size: 31px;
+        text-transform: uppercase;
+        color: var(--ink);
+        background: #fffaf0;
+        border: 4px solid var(--ink);
+        border-radius: 10px;
+        padding: 4px 14px;
+        white-space: nowrap;
+      }
+      .stampwrap {
+        position: absolute;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+      }
+      .stampwrap .stamp {
+        font-size: 112px;
+      }
+
+      /* Over-footage stamp + sticker */
+      #pro {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 280px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 26px;
+      }
+      #pro .stamp {
+        font-size: 170px;
+        padding: 10px 46px 4px;
+        border-width: 12px;
+        box-shadow: 0 16px 40px rgba(19, 28, 63, 0.25);
+      }
+      #pro .stick {
+        display: block;
+        background: #fffaf0;
+        color: var(--ink);
+        border: 5px solid var(--ink);
+        border-radius: 14px;
+        padding: 12px 26px;
+        font-weight: 900;
+        font-size: 44px;
+        text-transform: uppercase;
+        box-shadow: 0 12px 30px rgba(19, 28, 63, 0.25);
+      }
+
+      /* ---------- Video 3: rain, haze & skin ---------- */
+      .bignum {
+        position: absolute;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-family: "League Gothic", sans-serif;
+        font-size: 210px;
+        line-height: 1;
+        color: var(--ink);
+      }
+      .flow {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 18px;
+      }
+      .flow .op {
+        display: block;
+        font-family: "League Gothic", sans-serif;
+        font-size: 70px;
+        color: var(--red);
+      }
+      .fchip {
+        display: block;
+        padding: 10px 22px 12px;
+        border: 5px solid var(--ink);
+        border-radius: 16px;
+        background: #fffaf0;
+        text-align: center;
+      }
+      .fchip b {
+        display: block;
+        font-family: "League Gothic", sans-serif;
+        font-weight: 400;
+        font-size: 66px;
+        line-height: 1;
+        color: var(--ink);
+      }
+      .fchip small {
+        display: block;
+        font-weight: 800;
+        font-size: 24px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .fchip.y {
+        background: var(--hi);
+      }
+      .fchip.r {
+        background: var(--red);
+      }
+      .fchip.r b,
+      .fchip.r small {
+        color: #fffaf0;
+      }
+      .down {
+        position: absolute;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+      }
+      .line2 {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        font-family: "League Gothic", sans-serif;
+        font-size: 96px;
+        line-height: 1;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .strike {
+        display: inline-block;
+        position: relative;
+      }
+      .strike .x {
+        position: absolute;
+        left: -6px;
+        right: -6px;
+        top: 48%;
+        height: 12px;
+        display: block;
+        background: var(--red);
+        transform-origin: 0% 50%;
+      }
+      .steps {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 480px;
+      }
+      .steps .item {
+        font-size: 50px;
+        margin-bottom: 36px;
+      }
+      .steps .num {
+        display: flex;
+        flex: 0 0 76px;
+        width: 76px;
+        height: 76px;
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        background: var(--red);
+        color: #fffaf0;
+        font-family: "League Gothic", sans-serif;
+        font-size: 56px;
+        border: 4px solid var(--ink);
+      }
+      .steps .sub {
+        display: block;
+        font-weight: 800;
+        font-size: 30px;
+        color: var(--red);
+      }
+      .sticker {
+        position: absolute;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+      }
+      .sticker span {
+        display: block;
+        padding: 12px 28px;
+        border: 5px solid var(--ink);
+        border-radius: 14px;
+        background: var(--hi);
+        font-weight: 900;
+        font-size: 40px;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .item {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        font-weight: 900;
+        line-height: 1.1;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="134.6"
+      data-width="1080"
+      data-height="1920"
+    >
+      <div id="cam">
+        <div id="cam-inner" data-layout-allow-overflow>
+          <video data-hf-id="hf-4wn0" id="a-roll" class="clip" src="graded.mp4" playsinline data-start="0" data-duration="134.6" data-track-index="0" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover" data-has-audio="true"></video>
+        </div>
+      </div>
+
+      <div id="shade" class="clip" data-start="0" data-duration="8.4" data-track-index="1"></div>
+
+      <div id="hook" class="clip" data-start="0" data-duration="8.4" data-track-index="2">
+        <span class="tag">Fakta Kulit</span>
+        <span class="title">Redah hujan masa jerebu?</span>
+      </div>
+
+      <!-- Video 3: rain + haze cut-ins (generated by make_scenes.py) -->
+      <div id="i" class="scene clip" data-start="19.6" data-duration="9.9" data-track-index="6">
+        <div class="wipe"></div>
+        <div class="panel">
+          <div class="kick"><span>Semalam · IPU</span><span class="rule"></span></div>
+          <div class="hd">IPU masa tu: <span class="mark" id="i-mk"><span class="bar"></span><span class="t">180</span></span></div>
+          <div class="chips" style="justify-content: center"><span class="chip r" id="i-band">Tahap tidak sihat</span></div>
+          <svg class="art" viewBox="0 0 1080 1920">
+            <g id="i-arcs"><path d="M 250.0 960.0 A 290 290 0 0 1 288.9 815.0" fill="none" stroke="#6fae5b" stroke-width="70" /><path d="M 288.9 815.0 A 290 290 0 0 1 395.0 708.9" fill="none" stroke="#f2c230" stroke-width="70" /><path d="M 395.0 708.9 A 290 290 0 0 1 685.0 708.9" fill="none" stroke="#ee8a2a" stroke-width="70" /><path d="M 685.0 708.9 A 290 290 0 0 1 830.0 960.0" fill="none" stroke="#b8323a" stroke-width="70" /></g>
+            <g id="i-needle"><line x1="540" y1="960" x2="290" y2="960" stroke="#1d1b18" stroke-width="14" stroke-linecap="round" /></g>
+            <circle cx="540" cy="960" r="26" fill="#1d1b18" />
+          </svg>
+          <div class="lbl" style="left: 200px; top: 990px">0</div>
+          <div class="lbl" style="left: 810px; top: 990px">300</div>
+          <div class="lbl" id="i-band-lbl" style="left: 420px; top: 558px; width: 240px; text-align: center">101–200</div>
+          <div class="bignum" id="i-num" style="top: 1000px; font-size: 170px">180</div>
+        </div>
+      </div>
+
+      <div id="r" class="scene clip" data-start="32.4" data-duration="13.1" data-track-index="6">
+        <div class="wipe"></div>
+        <div class="panel">
+          <div class="kick"><span>Science · 01</span><span class="rule"></span></div>
+          <div class="hd">Hujan biasa: <span class="mark" id="r-mk"><span class="bar"></span><span class="t">sedikit berasid</span></span></div>
+          <svg class="art" viewBox="0 0 1080 1920">
+            <defs><linearGradient id="r-ph" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0" stop-color="#d7302b" /><stop offset="0.3" stop-color="#ef9a2c" /><stop offset="0.45" stop-color="#f2d23a" />
+              <stop offset="0.55" stop-color="#6fae5b" /><stop offset="0.75" stop-color="#3f86c6" /><stop offset="1" stop-color="#5b3b8c" />
+            </linearGradient></defs>
+            <rect x="100" y="600" width="880" height="64" rx="32" fill="url(#r-ph)" stroke="#1d1b18" stroke-width="5" />
+            <g id="r-mark"><path d="M 452 594 l -26 -40 h 52 Z" fill="#1d1b18" /></g>
+          </svg>
+          <div class="lbl" style="left: 92px; top: 684px">pH 0</div>
+          <div class="lbl" style="left: 500px; top: 684px">7</div>
+          <div class="lbl" style="left: 900px; top: 684px">14</div>
+          <div class="chips" style="top: 470px; left: 362px; right: auto"><span class="chip y" id="r-ph56">pH 5.6</span></div>
+          <div class="flow" style="top: 820px" id="r-flow"><span class="fchip " id="r-co2"><b>CO<sub>2</sub></b><small>karbon dioksida</small></span><span class="op" id="r-op">→ larut →</span><span class="fchip y" id="r-h2co3"><b>H<sub>2</sub>CO<sub>3</sub></b><small>asid karbonik</small></span></div>
+        </div>
+      </div>
+
+      <div id="h" class="scene clip" data-start="45.6" data-duration="21.4" data-track-index="6">
+        <div class="wipe"></div>
+        <div class="panel">
+          <div class="kick"><span>Science · 02</span><span class="rule"></span></div>
+          <div class="hd" style="font-size: 112px">Masa <span class="mark" id="h-mk"><span class="bar"></span><span class="t">jerebu</span></span></div>
+          <div class="flow" style="top: 330px" id="h-a"><span class="fchip r"><b>Pembakaran terbuka</b><small>sumber jerebu</small></span></div>
+          <div class="down" style="top: 470px" id="h-d1"><svg width="44" height="54" viewBox="0 0 44 54"><path d="M22 4 V44 M6 30 L22 48 L38 30" fill="none" stroke="#e0452b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" /></svg></div>
+          <div class="flow" style="top: 535px"><span class="fchip " id="h-so2"><b>SO<sub>2</sub></b><small>sulfur dioksida</small></span><span class="op" id="h-p1">+</span><span class="fchip " id="h-nox"><b>NO<sub>x</sub></b><small>nitrogen oksida</small></span></div>
+          <div class="down" style="top: 675px" id="h-d2"><svg width="44" height="54" viewBox="0 0 44 54"><path d="M22 4 V44 M6 30 L22 48 L38 30" fill="none" stroke="#e0452b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" /></svg></div>
+          <div class="flow" style="top: 740px"><span class="fchip " id="h-o2"><b>+ O<sub>2</sub></b><small>oksigen</small></span><span class="op" id="h-p2">+</span><span class="fchip " id="h-h2o"><b>H<sub>2</sub>O</b><small>wap air di awan</small></span></div>
+          <div class="down" style="top: 880px" id="h-d3"><svg width="44" height="54" viewBox="0 0 44 54"><path d="M22 4 V44 M6 30 L22 48 L38 30" fill="none" stroke="#e0452b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" /></svg></div>
+          <div class="flow" style="top: 945px"><span class="fchip y" id="h-sulf"><b>H<sub>2</sub>SO<sub>4</sub></b><small>asid sulfurik</small></span><span class="op" id="h-p3">+</span><span class="fchip y" id="h-nitr"><b>HNO<sub>3</sub></b><small>asid nitrik</small></span></div>
+          <div class="stampwrap" style="top: 640px"><span class="stamp" id="h-stamp">Acid rain · pH &lt; 5.6</span></div>
+        </div>
+      </div>
+
+      <div id="p" class="scene clip" data-start="67.2" data-duration="13.8" data-track-index="6">
+        <div class="wipe"></div>
+        <div class="panel">
+          <div class="kick"><span>Science · 03</span><span class="rule"></span></div>
+          <div class="hd">Hujan tangkap <span class="mark" id="p-mk"><span class="bar"></span><span class="t">PM2.5</span></span></div>
+          <svg class="art" viewBox="0 0 1080 1920">
+            <g fill="#d9d3c6" stroke="#1d1b18" stroke-width="5">
+              <ellipse cx="400" cy="500" rx="150" ry="62" /><ellipse cx="660" cy="500" rx="170" ry="70" /><ellipse cx="530" cy="460" rx="150" ry="80" />
+            </g>
+            <ellipse cx="530" cy="510" rx="300" ry="40" fill="#d9d3c6" />
+            <circle class="dot" id="p-x00" cx="234" cy="690" r="10" fill="#1d1b18" /><circle class="dot" id="p-x01" cx="208" cy="850" r="10" fill="#1d1b18" /><circle class="dot" id="p-x10" cx="364" cy="690" r="10" fill="#1d1b18" /><circle class="dot" id="p-x11" cx="392" cy="850" r="10" fill="#1d1b18" /><circle class="dot" id="p-x20" cx="554" cy="690" r="10" fill="#1d1b18" /><circle class="dot" id="p-x21" cx="528" cy="850" r="10" fill="#1d1b18" /><circle class="dot" id="p-x30" cx="684" cy="690" r="10" fill="#1d1b18" /><circle class="dot" id="p-x31" cx="712" cy="850" r="10" fill="#1d1b18" /><circle class="dot" id="p-x40" cx="874" cy="690" r="10" fill="#1d1b18" /><circle class="dot" id="p-x41" cx="848" cy="850" r="10" fill="#1d1b18" />
+            <g class="drop" id="p-d0" transform="translate(220 560)"><path d="M0 -42 C 20 -10 28 8 0 28 C -28 8 -20 -10 0 -42 Z" fill="#8ec5e8" stroke="#1d1b18" stroke-width="4" /></g><g class="drop" id="p-d1" transform="translate(380 560)"><path d="M0 -42 C 20 -10 28 8 0 28 C -28 8 -20 -10 0 -42 Z" fill="#8ec5e8" stroke="#1d1b18" stroke-width="4" /></g><g class="drop" id="p-d2" transform="translate(540 560)"><path d="M0 -42 C 20 -10 28 8 0 28 C -28 8 -20 -10 0 -42 Z" fill="#8ec5e8" stroke="#1d1b18" stroke-width="4" /></g><g class="drop" id="p-d3" transform="translate(700 560)"><path d="M0 -42 C 20 -10 28 8 0 28 C -28 8 -20 -10 0 -42 Z" fill="#8ec5e8" stroke="#1d1b18" stroke-width="4" /></g><g class="drop" id="p-d4" transform="translate(860 560)"><path d="M0 -42 C 20 -10 28 8 0 28 C -28 8 -20 -10 0 -42 Z" fill="#8ec5e8" stroke="#1d1b18" stroke-width="4" /></g>
+            <rect x="100" y="1000" width="880" height="34" rx="17" fill="#e9b496" stroke="#1d1b18" stroke-width="5" />
+          </svg>
+          <div class="lbl" id="p-face" style="left: 100px; top: 1044px">Muka kita</div>
+          <div class="chips" style="top: 1090px; justify-content: flex-end"><span class="chip r" id="p-c1">Asid</span><span class="chip r" id="p-c2">Habuk</span><span class="chip r" id="p-c3">Sisa pembakaran</span></div>
+        </div>
+      </div>
+
+      <div id="s" class="scene clip" data-start="82.2" data-duration="16.6" data-track-index="6">
+        <div class="wipe"></div>
+        <div class="panel">
+          <div class="kick"><span>Kulit kita</span><span class="rule"></span></div>
+          <div class="hd">Kulit naturally <span class="mark" id="s-mk"><span class="bar"></span><span class="t">berasid</span></span></div>
+          <div class="chips"><span class="chip y" id="s-ph">Lebih kurang pH 5</span></div>
+          <div class="line2" id="s-l1" style="top: 600px">Masalah sebenar bukan <span class="strike"><span class="x"></span>asid</span></div>
+          <div class="line2" id="s-l2" style="top: 720px">Tapi <span class="mark" id="s-mk2"><span class="bar"></span><span class="t">pollutant</span></span> yang melekat</div>
+          <div class="chips" style="top: 930px"><span class="chip r" id="s-c1">Gatal</span><span class="chip r" id="s-c2">Kemerahan</span><span class="chip r" id="s-c3">Pori tersumbat</span><span class="chip r" id="s-c4">Eczema flare-up</span></div>
+        </div>
+      </div>
+
+      <div id="m" class="scene clip" data-start="99.6" data-duration="11.4" data-track-index="6">
+        <div class="wipe"></div>
+        <div class="panel">
+          <div class="kick"><span>Sampai rumah</span><span class="rule"></span></div>
+          <div class="hd">Terus <span class="mark" id="m-mk"><span class="bar"></span><span class="t">mandi</span></span></div>
+          <div class="steps">
+            <div class="item" id="m-1"><span class="num">1</span><span>Gentle cleanser</span></div>
+            <div class="item" id="m-2"><span class="num">2</span><span>Shampoo rambut</span></div>
+            <div class="item" id="m-3"><span class="num">3</span><span>Moisturizer<span class="sub" id="m-3s">Repair skin barrier</span></span></div>
+          </div>
+          <div class="sticker" style="top: 1060px" id="m-st"><span>Moisturizer apa? Godek bio saya!</span></div>
+        </div>
+      </div>
+
+      <!-- Over footage (117.3–120.2s): "please protect your skin first" -->
+      <div id="pro" class="clip" data-start="117.3" data-duration="2.9" data-track-index="6">
+        <span class="stamp" id="pro-in" style="font-size: 120px; max-width: 900px; text-align: center; line-height: 0.95">Protect your skin first!</span>
+      </div>
+      <div id="captions" class="clip" data-start="0" data-duration="134.6" data-track-index="3"></div>
+
+      <div id="outro" class="clip" data-start="126.1" data-duration="8.5" data-track-index="4">
+        <span class="card">Follow Dr Fareez<span class="sub">untuk lebih tips tentang kulit</span></span>
+      </div>
+
+      <div id="progress" class="clip" data-start="0" data-duration="134.6" data-track-index="5">
+        <span class="bar"></span>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+      var DURATION = 134.6;
+      var HOOK_END = 8.4;
+      var OUTRO_START = 126.1;
+      // Caption groups: [{ start, end, words: [{ t, s, e, em }] }]
+      var GROUPS = [{"start": 0.09, "end": 4.57, "sb": true, "words": [{"t": "You", "s": 0.09, "e": 1.85, "em": false}, {"t": "know", "s": 1.85, "e": 4.32, "em": false}, {"t": "as", "s": 4.32, "e": 4.43, "em": false}, {"t": "a", "s": 4.47, "e": 4.57, "em": false}]}, {"start": 4.57, "end": 5.11, "sb": false, "words": [{"t": "rider", "s": 4.57, "e": 5.01, "em": false}]}, {"start": 5.11, "end": 6.76, "sb": true, "words": [{"t": "Riding", "s": 5.11, "e": 5.7, "em": false}, {"t": "in", "s": 5.7, "e": 5.93, "em": false}, {"t": "the", "s": 5.93, "e": 6.27, "em": false}, {"t": "rain", "s": 6.27, "e": 6.76, "em": false}]}, {"start": 6.76, "end": 8.02, "sb": false, "words": [{"t": "is", "s": 6.76, "e": 7.0, "em": false}, {"t": "always", "s": 7.0, "e": 7.34, "em": false}, {"t": "calming", "s": 7.34, "e": 7.74, "em": false}, {"t": "my", "s": 7.74, "e": 8.02, "em": false}]}, {"start": 8.02, "end": 8.79, "sb": false, "words": [{"t": "inner", "s": 8.02, "e": 8.39, "em": false}, {"t": "soul", "s": 8.39, "e": 8.7, "em": false}]}, {"start": 8.79, "end": 10.91, "sb": true, "words": [{"t": "Tapi", "s": 8.79, "e": 9.1, "em": false}, {"t": "semalam", "s": 9.1, "e": 9.79, "em": false}, {"t": "lain", "s": 9.8, "e": 10.2, "em": false}, {"t": "cerita", "s": 10.2, "e": 10.82, "em": false}]}, {"start": 10.91, "end": 13.42, "sb": true, "words": [{"t": "Saya", "s": 10.91, "e": 11.42, "em": false}, {"t": "balik", "s": 11.42, "e": 12.16, "em": false}, {"t": "kerja", "s": 12.16, "e": 12.92, "em": false}, {"t": "agak", "s": 12.92, "e": 13.42, "em": false}]}, {"start": 13.42, "end": 14.15, "sb": false, "words": [{"t": "lewat", "s": 13.42, "e": 14.06, "em": false}]}, {"start": 14.15, "end": 15.36, "sb": true, "words": [{"t": "And", "s": 14.15, "e": 14.29, "em": false}, {"t": "saya", "s": 14.29, "e": 14.6, "em": false}, {"t": "balik", "s": 14.6, "e": 14.98, "em": false}, {"t": "kerja", "s": 14.98, "e": 15.36, "em": false}]}, {"start": 15.36, "end": 16.66, "sb": false, "words": [{"t": "memang", "s": 15.36, "e": 15.83, "em": false}, {"t": "naik", "s": 15.83, "e": 16.13, "em": false}, {"t": "motor", "s": 16.13, "e": 16.58, "em": false}]}, {"start": 16.66, "end": 19.05, "sb": true, "words": [{"t": "Tiba-tiba", "s": 16.66, "e": 17.34, "em": false}, {"t": "hujan", "s": 17.34, "e": 18.96, "em": false}]}, {"start": 19.05, "end": 20.56, "sb": true, "words": [{"t": "Then", "s": 19.05, "e": 19.45, "em": false}, {"t": "I", "s": 19.45, "e": 19.57, "em": false}, {"t": "check", "s": 19.57, "e": 20.18, "em": false}, {"t": "the", "s": 20.18, "e": 20.56, "em": false}]}, {"start": 20.56, "end": 21.17, "sb": false, "words": [{"t": "apps", "s": 20.56, "e": 21.08, "em": false}]}, {"start": 21.17, "end": 22.51, "sb": true, "words": [{"t": "The", "s": 21.17, "e": 21.39, "em": false}, {"t": "IPU", "s": 21.39, "e": 21.59, "em": false}, {"t": "masa", "s": 21.59, "e": 21.9, "em": false}, {"t": "tu", "s": 21.9, "e": 22.3, "em": false}]}, {"start": 22.51, "end": 24.29, "sb": false, "words": [{"t": "is", "s": 22.51, "e": 22.71, "em": false}, {"t": "about", "s": 22.71, "e": 23.22, "em": false}, {"t": "180", "s": 23.22, "e": 24.19, "em": true}]}, {"start": 24.29, "end": 26.09, "sb": true, "words": [{"t": "Which", "s": 24.29, "e": 24.76, "em": false}, {"t": "is", "s": 24.76, "e": 24.98, "em": false}, {"t": "tahap", "s": 24.98, "e": 25.53, "em": false}, {"t": "tidak", "s": 25.53, "e": 26.09, "em": false}]}, {"start": 26.09, "end": 26.77, "sb": false, "words": [{"t": "sihat", "s": 26.09, "e": 26.68, "em": true}]}, {"start": 26.77, "end": 27.0, "sb": true, "words": [{"t": "And", "s": 26.77, "e": 27.0, "em": false}]}, {"start": 27.0, "end": 29.23, "sb": true, "words": [{"t": "I'm", "s": 27.0, "e": 27.31, "em": false}, {"t": "literally", "s": 27.31, "e": 28.27, "em": false}, {"t": "soaking", "s": 28.27, "e": 29.02, "em": false}, {"t": "in", "s": 29.02, "e": 29.23, "em": false}]}, {"start": 29.23, "end": 29.57, "sb": false, "words": [{"t": "it", "s": 29.23, "e": 29.48, "em": false}]}, {"start": 29.57, "end": 31.57, "sb": true, "words": [{"t": "So", "s": 29.57, "e": 29.74, "em": false}, {"t": "let's", "s": 29.74, "e": 30.39, "em": false}, {"t": "talk", "s": 30.39, "e": 30.91, "em": false}, {"t": "about", "s": 30.91, "e": 31.57, "em": false}]}, {"start": 31.57, "end": 32.61, "sb": false, "words": [{"t": "science", "s": 31.57, "e": 32.51, "em": true}]}, {"start": 32.61, "end": 35.65, "sb": true, "words": [{"t": "Hujan", "s": 32.61, "e": 33.51, "em": false}, {"t": "biasa", "s": 33.51, "e": 34.52, "em": false}, {"t": "pun", "s": 34.52, "e": 35.16, "em": false}, {"t": "memang", "s": 35.16, "e": 35.65, "em": false}]}, {"start": 35.65, "end": 37.27, "sb": false, "words": [{"t": "dia", "s": 35.65, "e": 35.89, "em": false}, {"t": "sedikit", "s": 35.89, "e": 36.45, "em": false}, {"t": "berasid", "s": 36.45, "e": 37.04, "em": true}, {"t": "pH", "s": 37.13, "e": 37.27, "em": false}]}, {"start": 37.27, "end": 39.67, "sb": false, "words": [{"t": "lebih", "s": 37.27, "e": 37.84, "em": false}, {"t": "kurang", "s": 37.84, "e": 38.52, "em": false}, {"t": "5.6", "s": 38.52, "e": 39.58, "em": true}]}, {"start": 39.67, "end": 42.12, "sb": true, "words": [{"t": "Sebab", "s": 39.67, "e": 40.13, "em": false}, {"t": "karbon", "s": 40.13, "e": 40.79, "em": false}, {"t": "dioksida", "s": 40.79, "e": 41.56, "em": false}, {"t": "dalam", "s": 41.56, "e": 42.12, "em": false}]}, {"start": 42.12, "end": 42.81, "sb": false, "words": [{"t": "udara", "s": 42.12, "e": 42.72, "em": false}]}, {"start": 42.81, "end": 44.32, "sb": true, "words": [{"t": "Dia", "s": 42.81, "e": 43.02, "em": false}, {"t": "akan", "s": 43.02, "e": 43.42, "em": false}, {"t": "larut", "s": 43.42, "e": 43.92, "em": false}, {"t": "jadi", "s": 43.92, "e": 44.32, "em": false}]}, {"start": 44.32, "end": 45.65, "sb": false, "words": [{"t": "asid", "s": 44.32, "e": 44.72, "em": false}, {"t": "karbonik", "s": 44.72, "e": 45.56, "em": false}]}, {"start": 45.65, "end": 47.21, "sb": true, "words": [{"t": "Tapi", "s": 45.65, "e": 46.0, "em": false}, {"t": "masa", "s": 46.0, "e": 46.44, "em": false}, {"t": "jerebu", "s": 46.44, "e": 47.12, "em": true}]}, {"start": 47.21, "end": 49.13, "sb": true, "words": [{"t": "Pembakaran", "s": 47.21, "e": 48.23, "em": false}, {"t": "terbuka", "s": 48.23, "e": 49.04, "em": false}]}, {"start": 49.13, "end": 51.83, "sb": true, "words": [{"t": "Dia", "s": 49.13, "e": 49.36, "em": false}, {"t": "lepaskan", "s": 49.36, "e": 50.19, "em": false}, {"t": "sulfur", "s": 50.2, "e": 50.84, "em": true}, {"t": "dioksida", "s": 50.84, "e": 51.74, "em": false}]}, {"start": 51.83, "end": 54.07, "sb": true, "words": [{"t": "Dan", "s": 51.83, "e": 52.13, "em": false}, {"t": "nitrogen", "s": 52.13, "e": 53.18, "em": true}, {"t": "oksida", "s": 53.18, "e": 53.98, "em": false}]}, {"start": 54.07, "end": 55.78, "sb": true, "words": [{"t": "Di", "s": 54.07, "e": 54.18, "em": false}, {"t": "sini", "s": 54.18, "e": 54.58, "em": false}, {"t": "dia", "s": 54.58, "e": 54.88, "em": false}, {"t": "bertindak", "s": 54.88, "e": 55.78, "em": false}]}, {"start": 55.78, "end": 57.33, "sb": false, "words": [{"t": "balas", "s": 55.78, "e": 56.3, "em": false}, {"t": "dengan", "s": 56.3, "e": 56.73, "em": false}, {"t": "oksigen", "s": 56.73, "e": 57.24, "em": false}]}, {"start": 57.33, "end": 58.47, "sb": true, "words": [{"t": "Dan", "s": 57.33, "e": 57.58, "em": false}, {"t": "wap", "s": 57.58, "e": 57.91, "em": false}, {"t": "air", "s": 57.91, "e": 58.25, "em": false}, {"t": "di", "s": 58.25, "e": 58.47, "em": false}]}, {"start": 58.47, "end": 59.05, "sb": false, "words": [{"t": "awan", "s": 58.47, "e": 58.96, "em": false}]}, {"start": 59.05, "end": 61.32, "sb": true, "words": [{"t": "Jadi", "s": 59.05, "e": 59.47, "em": false}, {"t": "asid", "s": 59.47, "e": 59.97, "em": false}, {"t": "sulfurik", "s": 59.97, "e": 61.02, "em": false}, {"t": "dan", "s": 61.02, "e": 61.32, "em": false}]}, {"start": 61.32, "end": 62.85, "sb": false, "words": [{"t": "juga", "s": 61.32, "e": 61.72, "em": false}, {"t": "asid", "s": 61.72, "e": 62.12, "em": false}, {"t": "nitrik", "s": 62.12, "e": 62.76, "em": false}]}, {"start": 62.85, "end": 64.4, "sb": true, "words": [{"t": "And", "s": 62.85, "e": 63.14, "em": false}, {"t": "that", "s": 63.14, "e": 63.65, "em": false}, {"t": "is", "s": 63.65, "e": 63.89, "em": false}, {"t": "acid", "s": 63.89, "e": 64.4, "em": true}]}, {"start": 64.4, "end": 66.89, "sb": false, "words": [{"t": "rain", "s": 64.4, "e": 64.96, "em": false}, {"t": "pH", "s": 65.05, "e": 65.19, "em": false}, {"t": "bawah", "s": 65.19, "e": 65.75, "em": false}, {"t": "5.6", "s": 65.75, "e": 66.8, "em": true}]}, {"start": 66.89, "end": 68.2, "sb": true, "words": [{"t": "Tapi", "s": 66.89, "e": 67.15, "em": false}, {"t": "apa", "s": 67.15, "e": 67.41, "em": false}, {"t": "yang", "s": 67.41, "e": 67.75, "em": false}, {"t": "lebih", "s": 67.75, "e": 68.2, "em": false}]}, {"start": 68.2, "end": 69.22, "sb": false, "words": [{"t": "penting", "s": 68.2, "e": 68.86, "em": false}, {"t": "ialah", "s": 68.86, "e": 69.14, "em": false}]}, {"start": 69.22, "end": 71.41, "sb": true, "words": [{"t": "Hujan", "s": 69.22, "e": 69.56, "em": false}, {"t": "tangkap", "s": 69.56, "e": 70.15, "em": false}, {"t": "partikel", "s": 70.15, "e": 70.84, "em": false}, {"t": "halus", "s": 70.84, "e": 71.32, "em": false}]}, {"start": 71.41, "end": 71.91, "sb": false, "words": [{"t": "PM2.5", "s": 71.41, "e": 71.52, "em": true}]}, {"start": 72.53, "end": 75.09, "sb": true, "words": [{"t": "Dalam", "s": 72.53, "e": 72.92, "em": false}, {"t": "perjalanan", "s": 72.92, "e": 73.92, "em": false}, {"t": "dia", "s": 73.92, "e": 74.21, "em": false}, {"t": "turunkan", "s": 74.21, "e": 75.0, "em": false}]}, {"start": 75.09, "end": 76.28, "sb": true, "words": [{"t": "So", "s": 75.09, "e": 75.17, "em": false}, {"t": "yang", "s": 75.17, "e": 75.52, "em": false}, {"t": "jatuh", "s": 75.52, "e": 75.94, "em": false}, {"t": "atas", "s": 75.94, "e": 76.28, "em": false}]}, {"start": 76.28, "end": 77.29, "sb": false, "words": [{"t": "muka", "s": 76.28, "e": 76.62, "em": false}, {"t": "kita", "s": 76.62, "e": 76.97, "em": false}, {"t": "ni", "s": 76.97, "e": 77.2, "em": false}]}, {"start": 77.29, "end": 78.81, "sb": true, "words": [{"t": "Macam-macam", "s": 77.29, "e": 78.14, "em": false}, {"t": "asid", "s": 78.14, "e": 78.72, "em": false}]}, {"start": 78.81, "end": 80.77, "sb": true, "words": [{"t": "Habuk", "s": 78.81, "e": 79.23, "em": true}, {"t": "sisa", "s": 79.23, "e": 79.63, "em": false}, {"t": "pembakaran", "s": 79.63, "e": 80.68, "em": false}]}, {"start": 80.77, "end": 82.36, "sb": true, "words": [{"t": "Dan", "s": 80.77, "e": 81.01, "em": false}, {"t": "kita", "s": 81.01, "e": 81.45, "em": false}, {"t": "kena", "s": 81.45, "e": 81.89, "em": false}, {"t": "tahu", "s": 81.89, "e": 82.36, "em": false}]}, {"start": 82.36, "end": 83.38, "sb": false, "words": [{"t": "kulit", "s": 82.36, "e": 82.78, "em": false}, {"t": "kita", "s": 82.78, "e": 83.12, "em": false}, {"t": "ni", "s": 83.12, "e": 83.3, "em": false}]}, {"start": 83.38, "end": 85.33, "sb": true, "words": [{"t": "Walaupun", "s": 83.38, "e": 83.94, "em": false}, {"t": "naturally", "s": 83.94, "e": 84.65, "em": false}, {"t": "berasid", "s": 84.65, "e": 85.24, "em": true}]}, {"start": 85.33, "end": 86.37, "sb": true, "words": [{"t": "Around", "s": 85.33, "e": 85.8, "em": false}, {"t": "pH", "s": 85.8, "e": 85.98, "em": false}, {"t": "5", "s": 85.98, "e": 86.28, "em": false}]}, {"start": 86.37, "end": 88.29, "sb": true, "words": [{"t": "Dia", "s": 86.37, "e": 86.6, "em": false}, {"t": "akan", "s": 86.6, "e": 87.02, "em": false}, {"t": "jadi", "s": 87.02, "e": 87.43, "em": false}, {"t": "masalah", "s": 87.43, "e": 88.2, "em": false}]}, {"start": 88.29, "end": 89.33, "sb": true, "words": [{"t": "Sebab", "s": 88.29, "e": 88.5, "em": false}, {"t": "the", "s": 88.5, "e": 88.68, "em": false}, {"t": "real", "s": 88.68, "e": 88.92, "em": false}, {"t": "problem", "s": 88.92, "e": 89.33, "em": false}]}, {"start": 89.33, "end": 90.01, "sb": false, "words": [{"t": "bukan", "s": 89.33, "e": 89.64, "em": false}, {"t": "asid", "s": 89.64, "e": 89.92, "em": false}]}, {"start": 90.01, "end": 92.27, "sb": true, "words": [{"t": "The", "s": 90.01, "e": 90.24, "em": false}, {"t": "pollutant", "s": 90.24, "e": 91.2, "em": true}, {"t": "yang", "s": 91.2, "e": 91.55, "em": false}, {"t": "melekat", "s": 91.55, "e": 92.18, "em": false}]}, {"start": 92.27, "end": 93.45, "sb": true, "words": [{"t": "Dan", "s": 92.27, "e": 92.41, "em": false}, {"t": "boleh", "s": 92.41, "e": 92.8, "em": false}, {"t": "trigger", "s": 92.8, "e": 93.34, "em": false}]}, {"start": 93.45, "end": 96.51, "sb": true, "words": [{"t": "Gatal", "s": 93.45, "e": 94.61, "em": true}, {"t": "kemerahan", "s": 94.61, "e": 95.44, "em": true}, {"t": "pori", "s": 95.44, "e": 95.73, "em": false}, {"t": "tersumbat", "s": 95.73, "e": 96.42, "em": false}]}, {"start": 96.51, "end": 98.63, "sb": true, "words": [{"t": "Eczema", "s": 96.51, "e": 97.53, "em": true}, {"t": "flare", "s": 97.53, "e": 98.24, "em": false}, {"t": "up", "s": 98.24, "e": 98.54, "em": false}]}, {"start": 98.63, "end": 100.63, "sb": true, "words": [{"t": "Okay", "s": 98.63, "e": 99.92, "em": false}, {"t": "sampai", "s": 99.92, "e": 100.25, "em": false}, {"t": "rumah", "s": 100.25, "e": 100.54, "em": false}]}, {"start": 100.63, "end": 101.69, "sb": true, "words": [{"t": "Saya", "s": 100.63, "e": 100.84, "em": false}, {"t": "terus", "s": 100.84, "e": 101.21, "em": false}, {"t": "mandi", "s": 101.21, "e": 101.6, "em": false}]}, {"start": 101.69, "end": 102.94, "sb": true, "words": [{"t": "Saya", "s": 101.69, "e": 101.88, "em": false}, {"t": "akan", "s": 101.88, "e": 102.16, "em": false}, {"t": "ambil", "s": 102.16, "e": 102.51, "em": false}, {"t": "gentle", "s": 102.51, "e": 102.94, "em": true}]}, {"start": 102.94, "end": 103.63, "sb": false, "words": [{"t": "cleanser", "s": 102.94, "e": 103.54, "em": false}]}, {"start": 103.63, "end": 105.13, "sb": true, "words": [{"t": "Shampoo", "s": 103.63, "e": 104.34, "em": false}, {"t": "rambut", "s": 104.34, "e": 105.04, "em": false}]}, {"start": 105.13, "end": 105.9, "sb": true, "words": [{"t": "And", "s": 105.13, "e": 105.21, "em": false}, {"t": "then", "s": 105.21, "e": 105.43, "em": false}, {"t": "of", "s": 105.43, "e": 105.54, "em": false}, {"t": "course", "s": 105.54, "e": 105.9, "em": false}]}, {"start": 105.9, "end": 106.81, "sb": false, "words": [{"t": "the", "s": 105.9, "e": 106.05, "em": false}, {"t": "moisturizer", "s": 106.06, "e": 106.72, "em": true}]}, {"start": 106.81, "end": 108.71, "sb": true, "words": [{"t": "Untuk", "s": 106.81, "e": 107.14, "em": false}, {"t": "repair", "s": 107.14, "e": 107.65, "em": false}, {"t": "skin", "s": 107.65, "e": 107.99, "em": false}, {"t": "barrier", "s": 107.99, "e": 108.62, "em": true}]}, {"start": 108.71, "end": 110.11, "sb": true, "words": [{"t": "Nak", "s": 108.71, "e": 108.82, "em": false}, {"t": "tahu", "s": 108.82, "e": 109.08, "em": false}, {"t": "moisturizer", "s": 109.08, "e": 109.81, "em": true}, {"t": "apa", "s": 109.81, "e": 110.02, "em": false}]}, {"start": 110.11, "end": 111.44, "sb": true, "words": [{"t": "Boleh", "s": 110.11, "e": 110.36, "em": false}, {"t": "godek", "s": 110.36, "e": 110.72, "em": false}, {"t": "saya", "s": 110.72, "e": 111.03, "em": false}, {"t": "punya", "s": 111.03, "e": 111.44, "em": false}]}, {"start": 111.44, "end": 111.79, "sb": false, "words": [{"t": "bio", "s": 111.44, "e": 111.7, "em": false}]}, {"start": 111.79, "end": 114.44, "sb": true, "words": [{"t": "And", "s": 111.79, "e": 112.7, "em": false}, {"t": "rain", "s": 112.7, "e": 113.33, "em": false}, {"t": "is", "s": 113.33, "e": 113.65, "em": false}, {"t": "still", "s": 113.65, "e": 114.44, "em": false}]}, {"start": 114.44, "end": 115.83, "sb": false, "words": [{"t": "my", "s": 114.44, "e": 114.76, "em": false}, {"t": "terapi", "s": 114.76, "e": 115.74, "em": false}]}, {"start": 115.83, "end": 117.43, "sb": true, "words": [{"t": "But", "s": 115.83, "e": 116.1, "em": false}, {"t": "masa", "s": 116.1, "e": 116.59, "em": false}, {"t": "jerebu", "s": 116.59, "e": 117.34, "em": true}]}, {"start": 117.43, "end": 118.86, "sb": true, "words": [{"t": "Please", "s": 117.43, "e": 117.77, "em": false}, {"t": "protect", "s": 117.77, "e": 118.28, "em": true}, {"t": "your", "s": 118.28, "e": 118.57, "em": false}, {"t": "skin", "s": 118.57, "e": 118.86, "em": false}]}, {"start": 118.86, "end": 119.33, "sb": false, "words": [{"t": "first", "s": 118.86, "e": 119.24, "em": false}]}, {"start": 119.33, "end": 121.24, "sb": true, "words": [{"t": "Share", "s": 119.33, "e": 119.57, "em": true}, {"t": "dengan", "s": 119.57, "e": 119.97, "em": false}, {"t": "member-member", "s": 119.97, "e": 120.84, "em": false}, {"t": "rider", "s": 120.84, "e": 121.24, "em": false}]}, {"start": 121.24, "end": 122.07, "sb": false, "words": [{"t": "korang", "s": 121.24, "e": 121.78, "em": false}, {"t": "ni", "s": 121.78, "e": 121.98, "em": false}]}, {"start": 122.07, "end": 123.52, "sb": true, "words": [{"t": "Yang", "s": 122.07, "e": 122.32, "em": false}, {"t": "memang", "s": 122.32, "e": 122.84, "em": false}, {"t": "suka", "s": 122.84, "e": 123.17, "em": false}, {"t": "naik", "s": 123.17, "e": 123.52, "em": false}]}, {"start": 123.52, "end": 124.07, "sb": false, "words": [{"t": "motor", "s": 123.52, "e": 123.98, "em": false}]}, {"start": 124.07, "end": 125.6, "sb": true, "words": [{"t": "Dan", "s": 124.07, "e": 124.32, "em": false}, {"t": "buat", "s": 124.32, "e": 124.78, "em": false}, {"t": "tu", "s": 124.78, "e": 124.99, "em": false}, {"t": "hujan", "s": 124.99, "e": 125.6, "em": false}]}, {"start": 125.6, "end": 126.21, "sb": false, "words": [{"t": "especially", "s": 125.6, "e": 126.12, "em": false}]}, {"start": 126.21, "end": 128.31, "sb": true, "words": [{"t": "Follow", "s": 126.21, "e": 126.79, "em": true}, {"t": "untuk", "s": 126.79, "e": 127.34, "em": false}, {"t": "tips", "s": 127.34, "e": 127.82, "em": false}, {"t": "lebih", "s": 127.82, "e": 128.22, "em": false}]}, {"start": 128.31, "end": 130.09, "sb": true, "words": [{"t": "Tentang", "s": 128.31, "e": 129.23, "em": false}, {"t": "kulit", "s": 129.23, "e": 130.0, "em": false}]}, {"start": 130.09, "end": 132.16, "sb": true, "words": [{"t": "Dan", "s": 130.09, "e": 130.42, "em": false}, {"t": "jangan", "s": 130.42, "e": 131.24, "em": false}, {"t": "lupa", "s": 131.24, "e": 131.82, "em": false}, {"t": "like", "s": 131.82, "e": 132.16, "em": false}]}, {"start": 132.16, "end": 132.93, "sb": false, "words": [{"t": "video", "s": 132.16, "e": 132.58, "em": false}, {"t": "ini", "s": 132.58, "e": 132.84, "em": false}]}, {"start": 132.93, "end": 134.01, "sb": true, "words": [{"t": "Thank", "s": 132.93, "e": 133.16, "em": false}, {"t": "you", "s": 133.16, "e": 133.35, "em": false}, {"t": "so", "s": 133.35, "e": 133.48, "em": false}, {"t": "much", "s": 133.48, "e": 133.76, "em": false}]}];
+      // Camera beats: [time, scale] — hard punch-ins on sentence starts
+      var PUNCHES = [[14.15, 1.16], [21.17, 1.085], [26.77, 1.16], [32.61, 1.085], [39.67, 1.16], [45.65, 1.085], [51.83, 1.16], [57.33, 1.085], [62.85, 1.16], [69.22, 1.085], [75.09, 1.16], [80.77, 1.085], [86.37, 1.16], [92.27, 1.085], [98.63, 1.16], [103.63, 1.085], [108.71, 1.16], [115.83, 1.085], [122.07, 1.16], [126.1, 1.085]];
+      var BASE = 1.085;
+
+      var tl = gsap.timeline({ paused: true });
+
+      // --- Camera: opening settle, then punch-ins ---
+      tl.fromTo("#cam-inner", { scale: 1.22 }, { scale: BASE, duration: 1.1, ease: "power3.out" }, 0);
+      PUNCHES.forEach(function (p) {
+        tl.to("#cam-inner", { scale: p[1], duration: 0.16, ease: "power3.out" }, p[0]);
+      });
+
+      // --- Hook card ---
+      tl.fromTo("#hook .tag", { y: -30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "back.out(1.8)" }, 0.15);
+      tl.fromTo(
+        "#hook .title",
+        { y: 40, scale: 0.92, opacity: 0 },
+        { y: 0, scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.6)" },
+        0.3,
+      );
+      tl.to("#hook .tag", { y: -20, opacity: 0, duration: 0.25, ease: "power2.in" }, HOOK_END - 0.35);
+      tl.to("#hook .title", { y: -30, opacity: 0, duration: 0.3, ease: "power2.in" }, HOOK_END - 0.3);
+      tl.to("#shade", { opacity: 0, duration: 0.4, ease: "none" }, HOOK_END - 0.4);
+
+      // --- Captions: one group at a time, karaoke highlight on the spoken word ---
+      var cap = document.getElementById("captions");
+      GROUPS.forEach(function (g, gi) {
+        var el = document.createElement("div");
+        el.className = "cg";
+        el.id = "cg-" + gi;
+        g.words.forEach(function (w, wi) {
+          var span = document.createElement("span");
+          span.className = "w";
+          span.id = "cg-" + gi + "-w" + wi;
+          var hl = document.createElement("span");
+          hl.className = "hl";
+          span.appendChild(hl);
+          var tx = document.createElement("span");
+          tx.className = "tx";
+          tx.textContent = w.t;
+          span.appendChild(tx);
+          el.appendChild(span);
+        });
+        cap.appendChild(el);
+      });
+
+      GROUPS.forEach(function (g, gi) {
+        var el = document.getElementById("cg-" + gi);
+        tl.fromTo(el, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.14, ease: "power2.out" }, g.start);
+        g.words.forEach(function (w, wi) {
+          var span = document.getElementById("cg-" + gi + "-w" + wi);
+          var hl = span.querySelector(".hl");
+          var popScale = w.em ? 1.14 : 1.06;
+          tl.set(hl, { opacity: 1 }, w.s);
+          tl.fromTo(span, { scale: 1 }, { scale: popScale, duration: 0.12, ease: "back.out(2.5)" }, w.s);
+          // Hand the highlight to the next word the instant it starts: one lit word at a time.
+          if (wi < g.words.length - 1) {
+            var off = g.words[wi + 1].s;
+            tl.set(hl, { opacity: 0 }, off);
+            tl.to(span, { scale: 1, duration: 0.1, ease: "power2.out" }, off);
+          }
+        });
+        tl.to(el, { opacity: 0, duration: 0.1, ease: "power2.in" }, g.end - 0.1);
+        tl.set(el, { opacity: 0, visibility: "hidden" }, g.end);
+      });
+
+      // --- Outro card ---
+      tl.fromTo(
+        "#outro .card",
+        { y: -40, scale: 0.9, opacity: 0 },
+        { y: 0, scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.6)" },
+        OUTRO_START + 0.05,
+      );
+
+      // ---------- Vox-style explainer cut-ins (audio keeps running underneath) ----------
+      function sceneIn(id, t) {
+        var s = "#" + id;
+        tl.fromTo(s + " .wipe", { clipPath: "inset(0% 0% 0% 100%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.3, ease: "power3.inOut" }, t);
+        tl.fromTo(s + " .panel", { clipPath: "inset(0% 0% 0% 100%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.36, ease: "power3.inOut" }, t + 0.08);
+        tl.fromTo(s + " .kick .rule", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.out" }, t + 0.3);
+        tl.fromTo(s + " .kick span:first-child", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }, t + 0.3);
+      }
+      function sceneOut(id, end) {
+        var s = "#" + id;
+        tl.to(s + " .panel", { clipPath: "inset(0% 100% 0% 0%)", duration: 0.3, ease: "power3.inOut" }, end - 0.36);
+        tl.to(s + " .wipe", { clipPath: "inset(0% 100% 0% 0%)", duration: 0.3, ease: "power3.inOut" }, end - 0.3);
+      }
+      function mark(sel, t) {
+        tl.fromTo(sel + " .bar", { scaleX: 0 }, { scaleX: 1, duration: 0.35, ease: "power2.out" }, t);
+      }
+      function fadeUp(sel, t) {
+        tl.fromTo(sel, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, t);
+      }
+      function pop(sel, t, from) {
+        tl.fromTo(sel, { opacity: 0, scale: from || 0.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, t);
+      }
+      function slam(sel, t, rot) {
+        tl.fromTo(
+          sel,
+          { opacity: 0, scale: 2.1, rotation: rot - 6 },
+          { opacity: 1, scale: 1, rotation: rot, duration: 0.2, ease: "power4.in" },
+          t,
+        );
+        tl.fromTo(sel, { x: 0 }, { keyframes: [{ x: -8 }, { x: 6 }, { x: -3 }, { x: 0 }], duration: 0.24, ease: "none" }, t + 0.2);
+      }
+
+      function figMark(id, t) {
+        tl.fromTo("#" + id + " circle", { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.35, ease: "back.out(2.5)" }, t);
+        tl.fromTo("#" + id + " line", { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "none" }, t + 0.1);
+        tl.fromTo("#" + id + " .pulse", { scale: 1, opacity: 0.9 }, { scale: 2.2, opacity: 0, duration: 0.9, ease: "power2.out", repeat: 2 }, t + 0.35);
+        pop("#" + id + "-l", t + 0.1, 0.7);
+      }
+      function chipIn(sel, t) {
+        tl.fromTo(sel, { opacity: 0, y: 20, scale: 0.8 }, { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: "back.out(2.2)" }, t);
+      }
+
+      // IPU gauge — "the IPU masa tu is about 180, which is tahap tidak sihat"
+      sceneIn("i", 19.6);
+      fadeUp("#i .hd", 19.9);
+      tl.fromTo("#i-arcs path", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "none", stagger: 0.08 }, 20.3);
+      tl.fromTo("#i-needle", { rotation: 0, svgOrigin: "540 960" }, { rotation: 108, duration: 1.8, ease: "elastic.out(1, 0.55)" }, 21.4);
+      pop("#i-num", 23.2, 0.5);
+      mark("#i-mk", 23.2);
+      pop("#i-band", 25.4);
+      pop("#i-band-lbl", 25.6, 0.7);
+      sceneOut("i", 29.5);
+
+      // Normal rain is slightly acidic
+      sceneIn("r", 32.4);
+      fadeUp("#r .hd", 32.7);
+      mark("#r-mk", 36.4);
+      tl.fromTo("#r-mark", { x: 440 - 452 + 100 }, { x: 0, duration: 1.4, ease: "power2.inOut" }, 37.1);
+      pop("#r-ph56", 38.5);
+      pop("#r-co2", 40.1);
+      fadeUp("#r-op", 43.2);
+      pop("#r-h2co3", 44.3);
+      sceneOut("r", 45.5);
+
+      // Haze → acid rain chain
+      sceneIn("h", 45.6);
+      fadeUp("#h .hd", 45.8);
+      mark("#h-mk", 46.4);
+      pop("#h-a .fchip", 47.2);
+      fadeUp("#h-d1", 49.0);
+      pop("#h-so2", 50.2);
+      pop("#h-p1", 51.8, 0.4);
+      pop("#h-nox", 52.1);
+      fadeUp("#h-d2", 54.6);
+      pop("#h-o2", 56.5);
+      pop("#h-p2", 57.4, 0.4);
+      pop("#h-h2o", 57.6);
+      fadeUp("#h-d3", 58.9);
+      pop("#h-sulf", 59.5);
+      pop("#h-p3", 61.1, 0.4);
+      pop("#h-nitr", 61.7);
+      slam("#h-stamp", 63.9, -6);
+      sceneOut("h", 67.0);
+
+      // Rain catches PM2.5 on the way down
+      sceneIn("p", 67.2);
+      fadeUp("#p .hd", 67.5);
+      mark("#p-mk", 71.4);
+      tl.fromTo("#p .dot", { opacity: 0, scale: 0, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)", stagger: 0.05 }, 70.2);
+      var FALL0 = 72.4, FALL = 2.4, Y0 = 560, Y1 = 990;
+      [0, 1, 2, 3, 4].forEach(function (i) {
+        var t0 = FALL0 + i * 0.22;
+        tl.fromTo("#p-d" + i, { y: Y0, opacity: 0 }, { y: Y1, opacity: 1, duration: FALL, ease: "none" }, t0);
+        [[0, 690], [1, 850]].forEach(function (d) {
+          var attach = t0 + ((d[1] - Y0) / (Y1 - Y0)) * FALL;
+          tl.to("#p-x" + i + d[0], { y: Y1 - d[1] + 6, duration: t0 + FALL - attach, ease: "none" }, attach);
+        });
+        tl.to("#p-d" + i, { scaleY: 0.35, scaleX: 1.6, opacity: 0, duration: 0.25, ease: "power2.out" }, t0 + FALL);
+      });
+      fadeUp("#p-face", 75.9);
+      pop("#p-c1", 78.1);
+      pop("#p-c2", 78.8);
+      pop("#p-c3", 79.6);
+      sceneOut("p", 81.0);
+
+      // Skin is acidic; the real problem is the pollutant
+      sceneIn("s", 82.2);
+      fadeUp("#s .hd", 82.5);
+      mark("#s-mk", 84.7);
+      pop("#s-ph", 85.8);
+      fadeUp("#s-l1", 88.3);
+      tl.fromTo("#s-l1 .x", { scaleX: 0 }, { scaleX: 1, duration: 0.3, ease: "power2.out" }, 89.7);
+      fadeUp("#s-l2", 90.1);
+      mark("#s-mk2", 90.3);
+      pop("#s-c1", 93.5);
+      pop("#s-c2", 94.6);
+      pop("#s-c3", 95.4);
+      pop("#s-c4", 96.5);
+      sceneOut("s", 98.8);
+
+      // Routine after getting home
+      sceneIn("m", 99.6);
+      fadeUp("#m .hd", 99.9);
+      mark("#m-mk", 101.2);
+      [["#m-1", 102.4], ["#m-2", 103.6], ["#m-3", 106.0]].forEach(function (p) {
+        tl.fromTo(p[0], { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.35, ease: "back.out(2)" }, p[1]);
+      });
+      fadeUp("#m-3s", 107.6);
+      tl.fromTo("#m-st span", { opacity: 0, scale: 0.7, rotation: -4 }, { opacity: 1, scale: 1, rotation: -2, duration: 0.35, ease: "back.out(2.2)" }, 108.8);
+      sceneOut("m", 111.0);
+
+      // Over footage — "please protect your skin first"
+      slam("#pro-in", 117.4, -5);
+      tl.to("#pro", { opacity: 0, duration: 0.25, ease: "none" }, 119.9);
+
+      // --- Progress bar ---
+      tl.fromTo("#progress .bar", { scaleX: 0 }, { scaleX: 1, duration: DURATION, ease: "none" }, 0);
+
+      window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>
