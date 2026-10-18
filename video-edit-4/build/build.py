@@ -1,0 +1,115 @@
+"""Build index.html from template.html + transcript.json + edit.json.
+
+transcript.json: [{ "text", "start", "end" }, ...] word-level (hyperframes transcribe)
+edit.json:       hook / outro copy, emphasis words, word fixes
+"""
+import json
+import re
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+DURATION = None  # set from edit.json "duration"
+BASE = 1.085
+PUNCH = 1.16
+MAX_WORDS = 4
+PAUSE_BREAK = 0.35
+
+
+def load_words(fixes):
+    """Clean words; `fixes` maps word id -> replacement text ("" drops the word)."""
+    raw = json.loads((ROOT / "transcript.json").read_text())
+    words = []
+    for w in raw:
+        t = (w.get("text") or "").strip()
+        if not t or re.fullmatch(r"[♪�\W_]+", t):
+            continue
+        # Whisper gives no punctuation here; a capitalised ordinary word starts a sentence.
+        sb = t[0].isupper() and not t.isupper() and "." not in t
+        if w.get("id") in fixes:
+            t = fixes[w["id"]]
+            if not t:
+                continue
+        words.append({"t": t, "s": float(w["start"]), "e": float(w["end"]), "sb": sb})
+    return words
+
+
+def group(words, emphasis):
+    groups, cur = [], []
+    for i, w in enumerate(words):
+        cur.append(w)
+        nxt = words[i + 1] if i + 1 < len(words) else None
+        sentence_end = w["t"][-1] in ".?!" or (nxt is not None and nxt["sb"])
+        gap = (nxt["s"] - w["e"]) if nxt else 99
+        if len(cur) >= MAX_WORDS or sentence_end or gap > PAUSE_BREAK or nxt is None:
+            groups.append(cur)
+            cur = []
+    out = []
+    for gi, g in enumerate(groups):
+        start = g[0]["s"]
+        nxt_start = groups[gi + 1][0]["s"] if gi + 1 < len(groups) else DURATION
+        # Hold a group on screen through short gaps, never past the next one.
+        end = min(max(g[-1]["e"] + 0.25, start + 0.5), nxt_start)
+        out.append({
+            "start": round(start, 3),
+            "end": round(end, 3),
+            "sb": g[0]["sb"],
+            "words": [{
+                "t": w["t"].rstrip(","),
+                "s": round(w["s"], 3),
+                "e": round(w["e"], 3),
+                "em": w["t"].lower().strip(".,!?") in emphasis,
+            } for w in g],
+        })
+    return out
+
+
+def punches(groups, hook_end, outro_start):
+    """Alternate base/punch framing at sentence starts, at least ~5s apart."""
+    beats, last, state = [], hook_end - 0.5, False
+    for i, g in enumerate(groups):
+        prev = groups[i - 1] if i else None
+        starts_sentence = prev is None or g["sb"] or g["start"] - prev["end"] > 0.6
+        if starts_sentence and g["start"] - last >= 5.0 and g["start"] < outro_start - 1:
+            state = not state
+            beats.append([round(g["start"], 3), PUNCH if state else BASE])
+            last = g["start"]
+    if state:
+        beats.append([round(outro_start, 3), BASE])
+    return beats
+
+
+def main():
+    global DURATION
+    edit = json.loads((ROOT / "build" / "edit.json").read_text())
+    DURATION = edit["duration"]
+    words = load_words(edit.get("fixes", {}))
+    emphasis = {e.lower() for e in edit.get("emphasis", [])}
+    groups = group(words, emphasis)
+    hook_end, outro_start = edit["hook_end"], edit["outro_start"]
+    beats = punches(groups, hook_end, outro_start)
+
+    video = (ROOT / "build" / "video.html").read_text().strip().replace("__DURATION__", str(DURATION))
+    html = (ROOT / "build" / "template.html").read_text()
+    for k, v in {
+        "__VIDEO__": video,
+        "__DURATION__": str(DURATION),
+        "__SCENES_CSS__": (ROOT / "build" / "scenes.css").read_text().rstrip(),
+        "__SCENES_HTML__": (ROOT / "build" / "scenes.html").read_text().rstrip(),
+        "__SCENES_JS__": (ROOT / "build" / "scenes.js").read_text().rstrip(),
+        "__HOOK_END__": str(hook_end),
+        "__HOOK_TAG__": edit["hook_tag"],
+        "__HOOK_TITLE__": edit["hook_title"],
+        "__OUTRO_START__": str(outro_start),
+        "__OUTRO_DUR__": str(round(DURATION - outro_start, 2)),
+        "__OUTRO_TEXT__": edit["outro_text"],
+        "__GROUPS__": json.dumps(groups, ensure_ascii=False),
+        "__PUNCHES__": json.dumps(beats),
+    }.items():
+        html = html.replace(k, v)
+    (ROOT / "index.html").write_text(html)
+    print(f"{len(words)} words, {len(groups)} groups, {len(beats)} camera beats", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main()

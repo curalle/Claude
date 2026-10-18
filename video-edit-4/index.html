@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="ms" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="vendor/gsap.min.js"></script>
+    <style>
+      :root {
+        --navy: #131c3f;
+        --accent: #b8206f;
+        --paper: #fff8f2;
+        /* explainer cut-ins */
+        --sheet: #f1ebdf;
+        --ink: #1d1b18;
+        --hi: #ffd23f;
+        --red: #e0452b;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--navy);
+      }
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
+
+      /* Camera wrapper: anchored at the top so the base reframe pushes the
+         phone's burned-in watermark (bottom-left) out of frame. */
+      #cam {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+      #cam-inner {
+        position: absolute;
+        inset: 0;
+        transform-origin: 50% 0%;
+      }
+
+      /* Soft top shade so the hook card reads over the bright wall */
+      #shade {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 640px;
+        background: linear-gradient(180deg, rgba(19, 28, 63, 0.55) 0%, rgba(19, 28, 63, 0) 100%);
+      }
+
+      /* Hook card */
+      #hook {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 170px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 22px;
+        padding: 0 70px;
+      }
+      #hook .tag {
+        display: block;
+        background: var(--accent);
+        color: var(--paper);
+        font-weight: 900;
+        font-size: 34px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        padding: 12px 26px;
+        border-radius: 8px;
+      }
+      #hook .title {
+        display: block;
+        max-width: 940px;
+        background: var(--paper);
+        color: var(--navy);
+        font-weight: 900;
+        font-size: 74px;
+        line-height: 1.08;
+        text-align: center;
+        text-transform: uppercase;
+        padding: 26px 40px 30px;
+        border-radius: 18px;
+        box-shadow: 0 18px 50px rgba(19, 28, 63, 0.35);
+      }
+
+      /* Captions */
+      #captions {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 1250px;
+        height: 330px;
+      }
+      .cg {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-content: flex-start;
+        gap: 6px 14px;
+        padding: 0 80px;
+        opacity: 0;
+        overflow: visible;
+      }
+      .w {
+        display: inline-block;
+        position: relative;
+        color: var(--paper);
+        font-weight: 900;
+        font-size: 64px;
+        line-height: 1.12;
+        white-space: nowrap;
+        text-transform: uppercase;
+        padding: 2px 14px 6px;
+        border-radius: 12px;
+        -webkit-text-stroke: 12px var(--navy);
+        paint-order: stroke fill;
+        text-shadow: 0 6px 18px rgba(19, 28, 63, 0.55);
+      }
+      .w .hl {
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        background: var(--accent);
+        opacity: 0;
+        display: block;
+      }
+      .w .tx {
+        position: relative;
+      }
+
+      /* Progress bar */
+      #progress {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 10px;
+        background: rgba(19, 28, 63, 0.45);
+      }
+      #progress .bar {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: var(--accent);
+        transform-origin: 0% 50%;
+      }
+
+      /* Outro */
+      #outro {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 250px;
+        display: flex;
+        justify-content: center;
+        padding: 0 80px;
+      }
+      #outro .card {
+        display: block;
+        background: var(--accent);
+        color: var(--paper);
+        font-weight: 900;
+        font-size: 58px;
+        line-height: 1.1;
+        text-align: center;
+        text-transform: uppercase;
+        padding: 24px 40px 28px;
+        border-radius: 18px;
+        box-shadow: 0 18px 50px rgba(19, 28, 63, 0.35);
+        max-width: 900px;
+      }
+      #outro .card .sub {
+        display: block;
+        margin-top: 12px;
+        font-size: 36px;
+        font-weight: 800;
+      }
+      #outro .card .sub.hl {
+        display: inline-block;
+        margin-top: 16px;
+        padding: 6px 18px;
+        border-radius: 10px;
+        background: var(--hi);
+        color: var(--ink);
+      }
+      /* ---------- Vox-style explainer cut-ins ---------- */
+      .scene {
+        position: absolute;
+        inset: 0;
+      }
+      .scene .wipe {
+        position: absolute;
+        inset: 0;
+        background: var(--hi);
+      }
+      .scene .panel {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        background-color: var(--sheet);
+        background-image:
+          radial-gradient(ellipse at 50% 40%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 60%),
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='360'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.32 0 0 0 0 0.27 0 0 0 0 0.2 0 0 0 0.11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      .scene svg.art {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: visible;
+      }
+      .kick {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 130px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-weight: 800;
+        font-size: 28px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--red);
+      }
+      .kick .rule {
+        display: block;
+        flex: 1;
+        height: 3px;
+        background: var(--ink);
+        transform-origin: 0% 50%;
+      }
+      .hd {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 190px;
+        font-family: "League Gothic", sans-serif;
+        font-size: 128px;
+        line-height: 0.95;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .mark {
+        display: inline-block;
+        position: relative;
+        padding: 0 10px;
+      }
+      .mark .bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 18%;
+        bottom: 6%;
+        display: block;
+        background: var(--hi);
+        transform-origin: 0% 50%;
+      }
+      .mark .t {
+        position: relative;
+      }
+      .lbl {
+        position: absolute;
+        font-weight: 800;
+        font-size: 34px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .note {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        text-align: center;
+        font-weight: 800;
+        font-size: 46px;
+        line-height: 1.15;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .stamp {
+        display: inline-block;
+        font-family: "League Gothic", sans-serif;
+        text-transform: uppercase;
+        color: var(--red);
+        border: 8px solid var(--red);
+        border-radius: 14px;
+        padding: 6px 30px 2px;
+        background: rgba(255, 255, 255, 0.55);
+      }
+
+
+      /* ---------- Video 4: convocation promo ---------- */
+      .combo {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 250px;
+        text-align: center;
+        font-family: "League Gothic", sans-serif;
+        font-size: 230px;
+        line-height: 1;
+        color: var(--ink);
+      }
+      .np {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 540px;
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+        font-weight: 800;
+        font-size: 46px;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .np .strike {
+        display: inline-block;
+        position: relative;
+      }
+      .np .strike .x {
+        position: absolute;
+        left: -6px;
+        right: -6px;
+        top: 46%;
+        height: 8px;
+        display: block;
+        background: var(--red);
+        transform-origin: 0% 50%;
+      }
+      .price {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 640px;
+        display: flex;
+        justify-content: center;
+      }
+      .price .p {
+        display: block;
+        position: relative;
+        padding: 0 30px;
+        font-family: "League Gothic", sans-serif;
+        font-size: 330px;
+        line-height: 1;
+        color: var(--accent);
+      }
+      .price .p .bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 30%;
+        bottom: 6%;
+        display: block;
+        background: var(--hi);
+        transform-origin: 0% 50%;
+      }
+      .price .p .t {
+        position: relative;
+      }
+      .price .p small {
+        font-size: 150px;
+      }
+      .stampwrap {
+        position: absolute;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+      }
+      .stampwrap .stamp {
+        font-size: 104px;
+      }
+      .dates {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 470px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 34px;
+      }
+      .cal {
+        display: block;
+        width: 330px;
+        border: 6px solid var(--ink);
+        border-radius: 24px;
+        overflow: hidden;
+        background: #fffaf0;
+        text-align: center;
+      }
+      .cal .m {
+        display: block;
+        background: var(--accent);
+        color: #fffaf0;
+        font-weight: 900;
+        font-size: 50px;
+        letter-spacing: 0.14em;
+        padding: 10px 0;
+      }
+      .cal .d {
+        display: block;
+        font-family: "League Gothic", sans-serif;
+        font-size: 230px;
+        line-height: 1.05;
+        color: var(--ink);
+      }
+      .dates .arr {
+        display: block;
+      }
+      #promo {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 330px;
+        display: flex;
+        justify-content: center;
+      }
+      #promo .stamp {
+        font-size: 120px;
+        max-width: 920px;
+        text-align: center;
+        line-height: 0.95;
+        box-shadow: 0 16px 40px rgba(19, 28, 63, 0.25);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="38.27"
+      data-width="1080"
+      data-height="1920"
+    >
+      <div id="cam">
+        <div id="cam-inner" data-layout-allow-overflow>
+          <video data-hf-id="hf-4wn0" id="a-roll" class="clip" src="promo-bg.mp4" playsinline data-start="0" data-duration="38.27" data-track-index="0" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover" data-has-audio="true"></video>
+        </div>
+      </div>
+
+      <div id="shade" class="clip" data-start="0" data-duration="3.85" data-track-index="1"></div>
+
+      <div id="hook" class="clip" data-start="0" data-duration="3.85" data-track-index="2">
+        <span class="tag">Konvokesyen UiTM ke-105</span>
+        <span class="title">Tahniah graduan UiTM!</span>
+      </div>
+
+      <!-- Convocation promo panels (generated by make_scenes.py) -->
+      <!-- Over footage (8.7–10.95s): "harga combo istimewa" -->
+      <div id="promo" class="clip" data-start="8.7" data-duration="2.25" data-track-index="6">
+        <span class="stamp" id="promo-in">Harga combo istimewa!</span>
+      </div>
+
+      <div id="c1" class="scene clip" data-start="11.25" data-duration="5.7" data-track-index="6">
+        <div class="wipe"></div>
+        <div class="panel">
+          <div class="kick"><span>Combo istimewa · 1/3 · Konvo UiTM</span><span class="rule"></span></div>
+          <div class="combo" id="c1-lbl">2 × 100g</div>
+          <div class="np" id="c1-np"><span>Harga asal</span><span class="strike"><span class="x"></span>RM198</span></div>
+          <div class="price" id="c1-pr"><span class="p"><span class="bar"></span><span class="t"><small>RM</small>129</span></span></div>
+          <div class="stampwrap" style="top: 1030px"><span class="stamp" id="c1-save">Jimat RM69</span></div>
+        </div>
+      </div>
+
+      <div id="c2" class="scene clip" data-start="16.5" data-duration="5.6" data-track-index="6">
+        <div class="wipe"></div>
+        <div class="panel">
+          <div class="kick"><span>Combo istimewa · 2/3 · Konvo UiTM</span><span class="rule"></span></div>
+          <div class="combo" id="c2-lbl">2 × 50g</div>
+          <div class="np" id="c2-np"><span>Harga asal</span><span class="strike"><span class="x"></span>RM158</span></div>
+          <div class="price" id="c2-pr"><span class="p"><span class="bar"></span><span class="t"><small>RM</small>99</span></span></div>
+          <div class="stampwrap" style="top: 1030px"><span class="stamp" id="c2-save">Jimat RM59</span></div>
+        </div>
+      </div>
+
+      <div id="c3" class="scene clip" data-start="21.65" data-duration="5.05" data-track-index="6">
+        <div class="wipe"></div>
+        <div class="panel">
+          <div class="kick"><span>Combo istimewa · 3/3 · Konvo UiTM</span><span class="rule"></span></div>
+          <div class="combo" id="c3-lbl">MIX COMBO</div>
+          <div class="np" id="c3-np"><span>Harga asal</span><span class="strike"><span class="x"></span>RM178</span></div>
+          <div class="price" id="c3-pr"><span class="p"><span class="bar"></span><span class="t"><small>RM</small>119</span></span></div>
+          <div class="stampwrap" style="top: 1030px"><span class="stamp" id="c3-save">Jimat RM59</span></div>
+        </div>
+      </div>
+
+      <div id="dt" class="scene clip" data-start="26.25" data-duration="5.15" data-track-index="6">
+        <div class="wipe"></div>
+        <div class="panel">
+          <div class="kick"><span>Tempoh tawaran</span><span class="rule"></span></div>
+          <div class="hd" style="text-align: center">Tawaran sah</div>
+          <div class="dates"><span class="cal" id="dt-a"><span class="m">OKT</span><span class="d">17</span></span><span id="dt-arr"><svg class="arr" width="110" height="60" viewBox="0 0 110 60"><path d="M6 30 H96 M72 8 L98 30 L72 52" fill="none" stroke="#e0452b" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" /></svg></span><span class="cal" id="dt-b"><span class="m">NOV</span><span class="d">14</span></span></div>
+          <div class="stampwrap" style="top: 900px"><span class="stamp" id="dt-only" style="font-size: 150px">Sahaja!</span></div>
+        </div>
+      </div>
+      <div id="captions" class="clip" data-start="0" data-duration="38.27" data-track-index="3"></div>
+
+      <div id="outro" class="clip" data-start="31.5" data-duration="6.77" data-track-index="4">
+        <span class="card">Curalle by Dr Fareez<span class="sub">Jumpa kami di booth Curalle!</span><span class="sub hl">17 Okt – 14 Nov sahaja</span></span>
+      </div>
+
+      <div id="progress" class="clip" data-start="0" data-duration="38.27" data-track-index="5">
+        <span class="bar"></span>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+      var DURATION = 38.27;
+      var HOOK_END = 3.85;
+      var OUTRO_START = 31.5;
+      // Caption groups: [{ start, end, words: [{ t, s, e, em }] }]
+      var GROUPS = [{"start": 0.499, "end": 2.022, "sb": true, "words": [{"t": "Tahniah", "s": 0.499, "e": 1.033, "em": true}, {"t": "buat", "s": 1.033, "e": 1.26, "em": false}, {"t": "semua", "s": 1.26, "e": 1.601, "em": false}, {"t": "graduan", "s": 1.601, "e": 2.022, "em": false}]}, {"start": 2.022, "end": 3.124, "sb": true, "words": [{"t": "UiTM", "s": 2.022, "e": 2.874, "em": false}]}, {"start": 4.04, "end": 4.54, "sb": true, "words": [{"t": "Sempena", "s": 4.04, "e": 4.54, "em": false}]}, {"start": 4.54, "end": 5.154, "sb": true, "words": [{"t": "Konvokesyen", "s": 4.54, "e": 5.154, "em": false}]}, {"start": 5.154, "end": 7.006, "sb": true, "words": [{"t": "UiTM", "s": 5.154, "e": 5.665, "em": false}, {"t": "ke-105", "s": 5.665, "e": 6.756, "em": true}]}, {"start": 7.074, "end": 7.585, "sb": true, "words": [{"t": "Curalle", "s": 7.074, "e": 7.426, "em": true}, {"t": "by", "s": 7.426, "e": 7.585, "em": false}]}, {"start": 7.585, "end": 7.915, "sb": true, "words": [{"t": "Dr", "s": 7.585, "e": 7.915, "em": false}]}, {"start": 7.915, "end": 9.449, "sb": true, "words": [{"t": "Fareez", "s": 7.915, "e": 8.256, "em": false}, {"t": "hadirkan", "s": 8.256, "e": 8.767, "em": false}, {"t": "harga", "s": 8.767, "e": 9.12, "em": false}, {"t": "combo", "s": 9.12, "e": 9.449, "em": false}]}, {"start": 9.449, "end": 10.415, "sb": false, "words": [{"t": "istimewa", "s": 9.449, "e": 10.165, "em": true}]}, {"start": 11.473, "end": 15.78, "sb": true, "words": [{"t": "Combo", "s": 11.473, "e": 11.871, "em": false}, {"t": "2x100g", "s": 11.871, "e": 13.132, "em": false}, {"t": "hanya", "s": 13.439, "e": 13.757, "em": false}, {"t": "RM129", "s": 13.757, "e": 15.53, "em": true}]}, {"start": 16.743, "end": 20.947, "sb": true, "words": [{"t": "Combo", "s": 16.743, "e": 17.141, "em": false}, {"t": "2x50g", "s": 17.141, "e": 18.527, "em": false}, {"t": "hanya", "s": 18.845, "e": 19.152, "em": false}, {"t": "RM99", "s": 19.152, "e": 20.697, "em": true}]}, {"start": 21.917, "end": 23.633, "sb": true, "words": [{"t": "Mix", "s": 21.917, "e": 22.246, "em": false}, {"t": "combo", "s": 22.246, "e": 22.519, "em": false}, {"t": "pula", "s": 22.519, "e": 22.996, "em": false}, {"t": "hanya", "s": 23.315, "e": 23.633, "em": false}]}, {"start": 23.633, "end": 25.474, "sb": false, "words": [{"t": "RM119", "s": 23.633, "e": 25.224, "em": true}]}, {"start": 26.543, "end": 27.918, "sb": true, "words": [{"t": "Tawaran", "s": 26.543, "e": 26.963, "em": false}, {"t": "sah", "s": 26.963, "e": 27.259, "em": false}, {"t": "dari", "s": 27.259, "e": 27.418, "em": false}, {"t": "17", "s": 27.418, "e": 27.918, "em": true}]}, {"start": 27.918, "end": 29.35, "sb": true, "words": [{"t": "Oktober", "s": 27.918, "e": 28.395, "em": false}, {"t": "hingga", "s": 28.395, "e": 28.77, "em": false}, {"t": "14", "s": 28.77, "e": 29.35, "em": true}]}, {"start": 29.35, "end": 30.691, "sb": true, "words": [{"t": "November", "s": 29.35, "e": 29.77, "em": false}, {"t": "sahaja", "s": 29.77, "e": 30.441, "em": true}]}, {"start": 31.646, "end": 32.805, "sb": true, "words": [{"t": "Jumpa", "s": 31.646, "e": 32.089, "em": false}, {"t": "kami", "s": 32.089, "e": 32.476, "em": false}, {"t": "di", "s": 32.476, "e": 32.623, "em": false}, {"t": "booth", "s": 32.623, "e": 32.805, "em": false}]}, {"start": 32.805, "end": 33.748, "sb": true, "words": [{"t": "Curalle", "s": 32.805, "e": 33.498, "em": true}]}, {"start": 34.254, "end": 36.447, "sb": true, "words": [{"t": "Jangan", "s": 34.254, "e": 34.731, "em": false}, {"t": "lepaskan", "s": 34.731, "e": 35.277, "em": false}, {"t": "peluang", "s": 35.277, "e": 35.606, "em": false}, {"t": "ini", "s": 35.606, "e": 36.197, "em": false}]}];
+      // Camera beats: [time, scale] — hard punch-ins on sentence starts
+      var PUNCHES = [[11.473, 1.16], [16.743, 1.085], [21.917, 1.16], [27.918, 1.085]];
+      var BASE = 1.085;
+
+      var tl = gsap.timeline({ paused: true });
+
+      // --- Camera: opening settle, then punch-ins ---
+      tl.fromTo("#cam-inner", { scale: 1.22 }, { scale: BASE, duration: 1.1, ease: "power3.out" }, 0);
+      PUNCHES.forEach(function (p) {
+        tl.to("#cam-inner", { scale: p[1], duration: 0.16, ease: "power3.out" }, p[0]);
+      });
+
+      // --- Hook card ---
+      tl.fromTo("#hook .tag", { y: -30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "back.out(1.8)" }, 0.15);
+      tl.fromTo(
+        "#hook .title",
+        { y: 40, scale: 0.92, opacity: 0 },
+        { y: 0, scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.6)" },
+        0.3,
+      );
+      tl.to("#hook .tag", { y: -20, opacity: 0, duration: 0.25, ease: "power2.in" }, HOOK_END - 0.35);
+      tl.to("#hook .title", { y: -30, opacity: 0, duration: 0.3, ease: "power2.in" }, HOOK_END - 0.3);
+      tl.to("#shade", { opacity: 0, duration: 0.4, ease: "none" }, HOOK_END - 0.4);
+
+      // --- Captions: one group at a time, karaoke highlight on the spoken word ---
+      var cap = document.getElementById("captions");
+      GROUPS.forEach(function (g, gi) {
+        var el = document.createElement("div");
+        el.className = "cg";
+        el.id = "cg-" + gi;
+        g.words.forEach(function (w, wi) {
+          var span = document.createElement("span");
+          span.className = "w";
+          span.id = "cg-" + gi + "-w" + wi;
+          var hl = document.createElement("span");
+          hl.className = "hl";
+          span.appendChild(hl);
+          var tx = document.createElement("span");
+          tx.className = "tx";
+          tx.textContent = w.t;
+          span.appendChild(tx);
+          el.appendChild(span);
+        });
+        cap.appendChild(el);
+      });
+
+      GROUPS.forEach(function (g, gi) {
+        var el = document.getElementById("cg-" + gi);
+        tl.fromTo(el, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.14, ease: "power2.out" }, g.start);
+        g.words.forEach(function (w, wi) {
+          var span = document.getElementById("cg-" + gi + "-w" + wi);
+          var hl = span.querySelector(".hl");
+          var popScale = w.em ? 1.14 : 1.06;
+          tl.set(hl, { opacity: 1 }, w.s);
+          tl.fromTo(span, { scale: 1 }, { scale: popScale, duration: 0.12, ease: "back.out(2.5)" }, w.s);
+          // Hand the highlight to the next word the instant it starts: one lit word at a time.
+          if (wi < g.words.length - 1) {
+            var off = g.words[wi + 1].s;
+            tl.set(hl, { opacity: 0 }, off);
+            tl.to(span, { scale: 1, duration: 0.1, ease: "power2.out" }, off);
+          }
+        });
+        tl.to(el, { opacity: 0, duration: 0.1, ease: "power2.in" }, g.end - 0.1);
+        tl.set(el, { opacity: 0, visibility: "hidden" }, g.end);
+      });
+
+      // --- Outro card ---
+      tl.fromTo(
+        "#outro .card",
+        { y: -40, scale: 0.9, opacity: 0 },
+        { y: 0, scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.6)" },
+        OUTRO_START + 0.05,
+      );
+
+      // ---------- Vox-style explainer cut-ins (audio keeps running underneath) ----------
+      function sceneIn(id, t) {
+        var s = "#" + id;
+        tl.fromTo(s + " .wipe", { clipPath: "inset(0% 0% 0% 100%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.3, ease: "power3.inOut" }, t);
+        tl.fromTo(s + " .panel", { clipPath: "inset(0% 0% 0% 100%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.36, ease: "power3.inOut" }, t + 0.08);
+        tl.fromTo(s + " .kick .rule", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.out" }, t + 0.3);
+        tl.fromTo(s + " .kick span:first-child", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }, t + 0.3);
+      }
+      function sceneOut(id, end) {
+        var s = "#" + id;
+        tl.to(s + " .panel", { clipPath: "inset(0% 100% 0% 0%)", duration: 0.3, ease: "power3.inOut" }, end - 0.36);
+        tl.to(s + " .wipe", { clipPath: "inset(0% 100% 0% 0%)", duration: 0.3, ease: "power3.inOut" }, end - 0.3);
+      }
+      function mark(sel, t) {
+        tl.fromTo(sel + " .bar", { scaleX: 0 }, { scaleX: 1, duration: 0.35, ease: "power2.out" }, t);
+      }
+      function fadeUp(sel, t) {
+        tl.fromTo(sel, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, t);
+      }
+      function pop(sel, t, from) {
+        tl.fromTo(sel, { opacity: 0, scale: from || 0.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, t);
+      }
+      function slam(sel, t, rot) {
+        tl.fromTo(
+          sel,
+          { opacity: 0, scale: 2.1, rotation: rot - 6 },
+          { opacity: 1, scale: 1, rotation: rot, duration: 0.2, ease: "power4.in" },
+          t,
+        );
+        tl.fromTo(sel, { x: 0 }, { keyframes: [{ x: -8 }, { x: 6 }, { x: -3 }, { x: 0 }], duration: 0.24, ease: "none" }, t + 0.2);
+      }
+
+      function figMark(id, t) {
+        tl.fromTo("#" + id + " circle", { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.35, ease: "back.out(2.5)" }, t);
+        tl.fromTo("#" + id + " line", { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "none" }, t + 0.1);
+        tl.fromTo("#" + id + " .pulse", { scale: 1, opacity: 0.9 }, { scale: 2.2, opacity: 0, duration: 0.9, ease: "power2.out", repeat: 2 }, t + 0.35);
+        pop("#" + id + "-l", t + 0.1, 0.7);
+      }
+      function chipIn(sel, t) {
+        tl.fromTo(sel, { opacity: 0, y: 20, scale: 0.8 }, { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: "back.out(2.2)" }, t);
+      }
+
+      // Over footage — "harga combo istimewa"
+      slam("#promo-in", 8.75, -5);
+      tl.to("#promo", { opacity: 0, duration: 0.2, ease: "none" }, 10.7);
+
+      // Combo 1: 2 × 100g RM198 -> RM129
+      sceneIn("c1", 11.25);
+      pop("#c1-lbl", 11.87, 0.6);
+      fadeUp("#c1-np", 12.67);
+      tl.fromTo("#c1-np .x", { scaleX: 0 }, { scaleX: 1, duration: 0.3, ease: "power2.out" }, 13.07);
+      slam("#c1-pr .p", 13.76, -2);
+      mark("#c1-pr .p", 14.01);
+      slam("#c1-save", 14.66, -6);
+
+      // Combo 2: 2 × 50g RM158 -> RM99
+      sceneIn("c2", 16.5);
+      pop("#c2-lbl", 17.14, 0.6);
+      fadeUp("#c2-np", 17.94);
+      tl.fromTo("#c2-np .x", { scaleX: 0 }, { scaleX: 1, duration: 0.3, ease: "power2.out" }, 18.34);
+      slam("#c2-pr .p", 19.15, -2);
+      mark("#c2-pr .p", 19.4);
+      slam("#c2-save", 20.05, -6);
+
+      // Combo 3: MIX COMBO RM178 -> RM119
+      sceneIn("c3", 21.65);
+      pop("#c3-lbl", 21.92, 0.6);
+      fadeUp("#c3-np", 22.72);
+      tl.fromTo("#c3-np .x", { scaleX: 0 }, { scaleX: 1, duration: 0.3, ease: "power2.out" }, 23.12);
+      slam("#c3-pr .p", 23.63, -2);
+      mark("#c3-pr .p", 23.88);
+      slam("#c3-save", 24.53, -6);
+
+      // Offer dates
+      sceneIn("dt", 26.25);
+      fadeUp("#dt .hd", 26.5);
+      pop("#dt-a", 27.42, 0.5);
+      tl.fromTo("#dt-arr", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.35, ease: "power3.out" }, 28.4);
+      pop("#dt-b", 28.77, 0.5);
+      slam("#dt-only", 29.77, -6);
+      sceneOut("dt", 31.4);
+
+      // --- Progress bar ---
+      tl.fromTo("#progress .bar", { scaleX: 0 }, { scaleX: 1, duration: DURATION, ease: "none" }, 0);
+
+      window.__timelines["main"] = tl;
+      })();
+    </script>
+  </body>
+</html>

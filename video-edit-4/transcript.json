@@ -1,0 +1,290 @@
+[
+ {
+  "text": "Tahniah",
+  "start": 0.499,
+  "end": 1.033,
+  "id": "w0"
+ },
+ {
+  "text": "buat",
+  "start": 1.033,
+  "end": 1.26,
+  "id": "w1"
+ },
+ {
+  "text": "semua",
+  "start": 1.26,
+  "end": 1.601,
+  "id": "w2"
+ },
+ {
+  "text": "graduan",
+  "start": 1.601,
+  "end": 2.022,
+  "id": "w3"
+ },
+ {
+  "text": "UiTM",
+  "start": 2.022,
+  "end": 2.874,
+  "id": "w4"
+ },
+ {
+  "text": "Sempena",
+  "start": 4.04,
+  "end": 4.54,
+  "id": "w5"
+ },
+ {
+  "text": "Konvokesyen",
+  "start": 4.54,
+  "end": 5.154,
+  "id": "w6"
+ },
+ {
+  "text": "UiTM",
+  "start": 5.154,
+  "end": 5.665,
+  "id": "w7"
+ },
+ {
+  "text": "ke-105",
+  "start": 5.665,
+  "end": 6.756,
+  "id": "w8"
+ },
+ {
+  "text": "Curalle",
+  "start": 7.074,
+  "end": 7.426,
+  "id": "w9"
+ },
+ {
+  "text": "by",
+  "start": 7.426,
+  "end": 7.585,
+  "id": "w10"
+ },
+ {
+  "text": "Dr",
+  "start": 7.585,
+  "end": 7.915,
+  "id": "w11"
+ },
+ {
+  "text": "Fareez",
+  "start": 7.915,
+  "end": 8.256,
+  "id": "w12"
+ },
+ {
+  "text": "hadirkan",
+  "start": 8.256,
+  "end": 8.767,
+  "id": "w13"
+ },
+ {
+  "text": "harga",
+  "start": 8.767,
+  "end": 9.12,
+  "id": "w14"
+ },
+ {
+  "text": "combo",
+  "start": 9.12,
+  "end": 9.449,
+  "id": "w15"
+ },
+ {
+  "text": "istimewa",
+  "start": 9.449,
+  "end": 10.165,
+  "id": "w16"
+ },
+ {
+  "text": "Combo",
+  "start": 11.473,
+  "end": 11.871,
+  "id": "w17"
+ },
+ {
+  "text": "2x100g",
+  "start": 11.871,
+  "end": 13.132,
+  "id": "w18"
+ },
+ {
+  "text": "hanya",
+  "start": 13.439,
+  "end": 13.757,
+  "id": "w19"
+ },
+ {
+  "text": "RM129",
+  "start": 13.757,
+  "end": 15.53,
+  "id": "w20"
+ },
+ {
+  "text": "Combo",
+  "start": 16.743,
+  "end": 17.141,
+  "id": "w21"
+ },
+ {
+  "text": "2x50g",
+  "start": 17.141,
+  "end": 18.527,
+  "id": "w22"
+ },
+ {
+  "text": "hanya",
+  "start": 18.845,
+  "end": 19.152,
+  "id": "w23"
+ },
+ {
+  "text": "RM99",
+  "start": 19.152,
+  "end": 20.697,
+  "id": "w24"
+ },
+ {
+  "text": "Mix",
+  "start": 21.917,
+  "end": 22.246,
+  "id": "w25"
+ },
+ {
+  "text": "combo",
+  "start": 22.246,
+  "end": 22.519,
+  "id": "w26"
+ },
+ {
+  "text": "pula",
+  "start": 22.519,
+  "end": 22.996,
+  "id": "w27"
+ },
+ {
+  "text": "hanya",
+  "start": 23.315,
+  "end": 23.633,
+  "id": "w28"
+ },
+ {
+  "text": "RM119",
+  "start": 23.633,
+  "end": 25.224,
+  "id": "w29"
+ },
+ {
+  "text": "Tawaran",
+  "start": 26.543,
+  "end": 26.963,
+  "id": "w30"
+ },
+ {
+  "text": "sah",
+  "start": 26.963,
+  "end": 27.259,
+  "id": "w31"
+ },
+ {
+  "text": "dari",
+  "start": 27.259,
+  "end": 27.418,
+  "id": "w32"
+ },
+ {
+  "text": "17",
+  "start": 27.418,
+  "end": 27.918,
+  "id": "w33"
+ },
+ {
+  "text": "Oktober",
+  "start": 27.918,
+  "end": 28.395,
+  "id": "w34"
+ },
+ {
+  "text": "hingga",
+  "start": 28.395,
+  "end": 28.77,
+  "id": "w35"
+ },
+ {
+  "text": "14",
+  "start": 28.77,
+  "end": 29.35,
+  "id": "w36"
+ },
+ {
+  "text": "November",
+  "start": 29.35,
+  "end": 29.77,
+  "id": "w37"
+ },
+ {
+  "text": "sahaja",
+  "start": 29.77,
+  "end": 30.441,
+  "id": "w38"
+ },
+ {
+  "text": "Jumpa",
+  "start": 31.646,
+  "end": 32.089,
+  "id": "w39"
+ },
+ {
+  "text": "kami",
+  "start": 32.089,
+  "end": 32.476,
+  "id": "w40"
+ },
+ {
+  "text": "di",
+  "start": 32.476,
+  "end": 32.623,
+  "id": "w41"
+ },
+ {
+  "text": "booth",
+  "start": 32.623,
+  "end": 32.805,
+  "id": "w42"
+ },
+ {
+  "text": "Curalle",
+  "start": 32.805,
+  "end": 33.498,
+  "id": "w43"
+ },
+ {
+  "text": "Jangan",
+  "start": 34.254,
+  "end": 34.731,
+  "id": "w44"
+ },
+ {
+  "text": "lepaskan",
+  "start": 34.731,
+  "end": 35.277,
+  "id": "w45"
+ },
+ {
+  "text": "peluang",
+  "start": 35.277,
+  "end": 35.606,
+  "id": "w46"
+ },
+ {
+  "text": "ini",
+  "start": 35.606,
+  "end": 36.197,
+  "id": "w47"
+ }
+]

@@ -1,0 +1,243 @@
+      /* ---------- Vox-style explainer cut-ins ---------- */
+      .scene {
+        position: absolute;
+        inset: 0;
+      }
+      .scene .wipe {
+        position: absolute;
+        inset: 0;
+        background: var(--hi);
+      }
+      .scene .panel {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        background-color: var(--sheet);
+        background-image:
+          radial-gradient(ellipse at 50% 40%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 60%),
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='360'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.32 0 0 0 0 0.27 0 0 0 0 0.2 0 0 0 0.11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      .scene svg.art {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: visible;
+      }
+      .kick {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 130px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-weight: 800;
+        font-size: 28px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--red);
+      }
+      .kick .rule {
+        display: block;
+        flex: 1;
+        height: 3px;
+        background: var(--ink);
+        transform-origin: 0% 50%;
+      }
+      .hd {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 190px;
+        font-family: "League Gothic", sans-serif;
+        font-size: 128px;
+        line-height: 0.95;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .mark {
+        display: inline-block;
+        position: relative;
+        padding: 0 10px;
+      }
+      .mark .bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 18%;
+        bottom: 6%;
+        display: block;
+        background: var(--hi);
+        transform-origin: 0% 50%;
+      }
+      .mark .t {
+        position: relative;
+      }
+      .lbl {
+        position: absolute;
+        font-weight: 800;
+        font-size: 34px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .note {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        text-align: center;
+        font-weight: 800;
+        font-size: 46px;
+        line-height: 1.15;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .stamp {
+        display: inline-block;
+        font-family: "League Gothic", sans-serif;
+        text-transform: uppercase;
+        color: var(--red);
+        border: 8px solid var(--red);
+        border-radius: 14px;
+        padding: 6px 30px 2px;
+        background: rgba(255, 255, 255, 0.55);
+      }
+
+
+      /* ---------- Video 4: convocation promo ---------- */
+      .combo {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 250px;
+        text-align: center;
+        font-family: "League Gothic", sans-serif;
+        font-size: 230px;
+        line-height: 1;
+        color: var(--ink);
+      }
+      .np {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 540px;
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+        font-weight: 800;
+        font-size: 46px;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .np .strike {
+        display: inline-block;
+        position: relative;
+      }
+      .np .strike .x {
+        position: absolute;
+        left: -6px;
+        right: -6px;
+        top: 46%;
+        height: 8px;
+        display: block;
+        background: var(--red);
+        transform-origin: 0% 50%;
+      }
+      .price {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 640px;
+        display: flex;
+        justify-content: center;
+      }
+      .price .p {
+        display: block;
+        position: relative;
+        padding: 0 30px;
+        font-family: "League Gothic", sans-serif;
+        font-size: 330px;
+        line-height: 1;
+        color: var(--accent);
+      }
+      .price .p .bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 30%;
+        bottom: 6%;
+        display: block;
+        background: var(--hi);
+        transform-origin: 0% 50%;
+      }
+      .price .p .t {
+        position: relative;
+      }
+      .price .p small {
+        font-size: 150px;
+      }
+      .stampwrap {
+        position: absolute;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+      }
+      .stampwrap .stamp {
+        font-size: 104px;
+      }
+      .dates {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 470px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 34px;
+      }
+      .cal {
+        display: block;
+        width: 330px;
+        border: 6px solid var(--ink);
+        border-radius: 24px;
+        overflow: hidden;
+        background: #fffaf0;
+        text-align: center;
+      }
+      .cal .m {
+        display: block;
+        background: var(--accent);
+        color: #fffaf0;
+        font-weight: 900;
+        font-size: 50px;
+        letter-spacing: 0.14em;
+        padding: 10px 0;
+      }
+      .cal .d {
+        display: block;
+        font-family: "League Gothic", sans-serif;
+        font-size: 230px;
+        line-height: 1.05;
+        color: var(--ink);
+      }
+      .dates .arr {
+        display: block;
+      }
+      #promo {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 330px;
+        display: flex;
+        justify-content: center;
+      }
+      #promo .stamp {
+        font-size: 120px;
+        max-width: 920px;
+        text-align: center;
+        line-height: 0.95;
+        box-shadow: 0 16px 40px rgba(19, 28, 63, 0.25);
+      }
